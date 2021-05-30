@@ -11,13 +11,13 @@ from functools import reduce
 i_min = 100
 i_max = 1000
 
-source_list_gen = lambda i_max: list(el for el in range(i_min, i_max+1, 1) if el % 2 == 0)
+source_list_gen = lambda el_min, el_max: list(el for el in range(el_min, el_max + 1, 1) if el % 2 == 0)
 multiplication = lambda el, el_next: el * el_next
 
-source_list = source_list_gen(i_max)
-result_mult = reduce(multiplication, source_list)
+source_list = source_list_gen(i_min, i_max)
+result_fact = reduce(multiplication, source_list)
 
 print(f"{len(source_list)} elements: {source_list}")
-print(f"Multiplication = {result_mult}.")
+print(f"Multiplication = {result_fact:,}.")
 
 print("End")
