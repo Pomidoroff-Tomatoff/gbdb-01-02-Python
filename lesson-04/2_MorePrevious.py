@@ -13,11 +13,11 @@ print(homework_type)
 
 
 # Генератор списка в виде функции
-def gen_list_random(i_start=0, i_end=10, i_step=1):
-    gen_list = []
+def gen_element_random(i_start=0, i_end=10, i_step=1):
+    # gen_list = []
     for i in range(i_start, i_end, i_step):
-        gen_list.append(randint(0, 101))
-    return gen_list
+        # gen_list.append(randint(0, 101))
+        yield randint(0, 101)
 
 # Преобразователь списка в виде функции
 def more_previous(source_list):
@@ -29,7 +29,7 @@ def more_previous(source_list):
 
 
 print("A. Генератор и преобразование списка ввиде функций:")
-source_list = gen_list_random(1, 1000, 100)
+source_list = [i for i in gen_element_random(1, 1000, 100)]
 destin_list = more_previous(source_list)
 print(f"in: {source_list}")
 print(f"to: {destin_list}")
