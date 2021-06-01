@@ -5,7 +5,7 @@ homework_type = "Lesson-5. 1-WriteFile"
 
 print(homework_type)
 
-with open("1_WriteFile_DATA_program.txt", "w") as data_file:
+with open("1_WriteFile_DATA_program.txt", "w", encoding="utf-8") as data_file:
 
     print("Введите строку данных или Enter для звершения: ")
 
