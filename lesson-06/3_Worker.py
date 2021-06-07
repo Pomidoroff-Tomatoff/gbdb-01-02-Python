@@ -11,5 +11,38 @@ homework_type = "Lesson-6. 3-Worker"
 print(homework_type)
 
 
+class Worker:
+
+    __income = {'wage': 0, 'bonus': 0}  # доход
+
+    def __init__(self, name, surname, position):
+        self.name = name
+        self.surname = surname
+        self.position = position  # должность
+
+
+    def set_income(self, wage, bonus):
+        self.__income['wage'] = wage
+        self.__income['bonus'] = bonus
+
+    def get_income(self):
+         return  self.__income['wage'] + self.__income['bonus']
+
+
+class Position(Worker):
+    def __init__(self, name, surname, position):
+        super().__init__(name, surname, position)
+
+    def full_name(self):
+        return self.name + ' ' + self.surname
+
+
+
+w = Position("Иван", "Петров", "продавец")
+w.set_income(1000, 100)
+
+print(f"Полное имя работника: «{w.full_name()}»")
+print(f"Доход работника: {w.get_income()} р")
+
 
 print("End")
