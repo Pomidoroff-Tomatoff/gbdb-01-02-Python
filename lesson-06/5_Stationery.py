@@ -9,5 +9,53 @@ homework_type = "Lesson-6. 5_Stationery"
 print(homework_type)
 
 
+class Stationery:
+
+    def __init__(self, title=None):
+        self.__title = title
+
+    def set_title(self, title=""):
+        self.__title = title
+
+    def get_title(self):
+        return self.__title
+
+    def draw(self):
+        print(f"Запуск отрисовки.")
+
+
+class Pen(Stationery):
+    def __init__(self):
+        super().__init__(title='Карандаш')
+
+    def draw(self):
+        print(f"Запускаем отрисовку линии меняющейся толщины при помощи принадлежности «{self.get_title()}»")
+
+
+class Pencil(Stationery):
+    def __init__(self):
+        super().__init__(title='Ручка')
+
+    def draw(self):
+        print(f"Рисую ТОНКУЮ линию при помощи принадлежности \"{self.get_title()}\".")
+
+
+class Handle(Stationery):
+    def __init__(self):
+        super().__init__(title='Маркер')
+
+    def draw(self):
+        print(f"Выполняю выделение принадлежностью \"{self.get_title()}\".")
+
+
+p_1 = Pen()
+p_1.draw()
+
+p_2 = Pencil()
+p_2.draw()
+
+h = Handle()
+h.draw()
+
 
 print("End")
