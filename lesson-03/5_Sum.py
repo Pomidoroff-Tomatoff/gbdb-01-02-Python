@@ -21,8 +21,11 @@ def my_func_sum(input_string):
     for el in nabor_list:
         if el == 'E' or el == 'e' or el == "У" or el == "у":
             index_stop = 1
+        elif el == "":
+            pass
         else:
-            nabor_sum = nabor_sum + float(el)
+            if el.isdigit():
+                nabor_sum = nabor_sum + float(el)
     return
 
 nabor_sum = 0

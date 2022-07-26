@@ -8,15 +8,20 @@ homework_type = "Lesson-3. 2_NameArg"
 print(homework_type)
 
 
-def u_profile(u_name="", u_surname="", u_year=0, u_city="", u_email="", u_tel=0):
-    return str(u_name) + " " + str(u_surname) + " " + str(u_year) + " " + str(u_city) + " " + str(u_email) + " " + str(u_tel)
+def u_profile(**kwargs):
+    user_str = ""
+    for key, value in kwargs.items():
+        user_str += str(value) + " "   # в конце строки тоже будет пробел...
+    return user_str
+
 
 print(u_profile(u_name="Geek",
-                u_tel="88007006841",   # Но телефон должен быть последним в выводе
                 u_surname="Brains",
                 u_year=2000,
                 u_city="Moscow",
-                u_email="support@geekbrains.ru"))
-
+                u_email="support@geekbrains.ru",
+                u_tel = "88007006841",  # Но телефон должен быть последним в выводе
+                )
+      )
 
 print("End")

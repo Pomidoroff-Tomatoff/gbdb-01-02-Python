@@ -23,11 +23,11 @@ def my_func_division(a, b):
 
 
 number_a = str_to_digit(input("Ведите 1-ое число: "))
-if number_a != None:
+if number_a is not None:
     number_b = str_to_digit(input("Ведите 2-ое число: "))
-    if number_b != None:
+    if number_b is not None:
         result_number = my_func_division(number_a, number_b)
-        if result_number != None:
+        if result_number is not None:
             print(f"Результат деления: {result_number}")
 
 print("End")

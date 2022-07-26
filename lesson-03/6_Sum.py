@@ -17,7 +17,7 @@ print("Пустая строка -- завершение работы")
 
 while True:
     input_string = input("Ваша строка: ")
-    if input_string == "":
+    if not input_string:
         break
     output_string = my_func_title(input_string)
     print(f"Результат:   {output_string}")
