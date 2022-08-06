@@ -12,12 +12,11 @@ from random import randint
 print(homework_type)
 
 
-# Генератор списка в виде функции
-def gen_element_random(i_start=0, i_end=10, i_step=1):
-    # gen_list = []
-    for i in range(i_start, i_end, i_step):
-        # gen_list.append(randint(0, 101))
-        yield randint(0, 101)
+# Генератор (функция-генератор)
+def gen_element_random(total=10, value_min=0, value_max=100):
+    for i in range(total):
+        yield randint(value_min, value_max)
+        
 
 # Преобразователь списка в виде функции
 def more_previous(source_list):
@@ -28,17 +27,36 @@ def more_previous(source_list):
     return destin_list
 
 
-print("A. Генератор и преобразование списка ввиде функций:")
-source_list = [i for i in gen_element_random(1, 1000, 100)]
-destin_list = more_previous(source_list)
-print(f"in: {source_list}")
-print(f"to: {destin_list}")
+print("A. Генератор в списковом ключении (list comprehension) для создания исходного массива и преобразование ввиде функций:")
+source_lst_gen = gen_element_random(10)
+source_lst = [i for i in source_lst_gen]
+destin_lst = more_previous(source_lst)
+print(f"in: {source_lst}")
+print(f"to: {destin_lst}")
 
-print("Б. Генератор и преобразование списка в видке спискового включения (list comprehension):")
-source_list = [randint(0, 101) for i in range(1, 1000, 100)]
-destin_list = [source_list[i] for i in range(1, len(source_list)) if source_list[i] > source_list[i - 1]]
-print(f"in: {source_list}")
-print(f"to: {destin_list}")
+print("Б. Генератор в list comprehension для создания исходного массива и формирование выходного массива так же list comprehension:")
+source_lst_gen = gen_element_random(10)
+source_lst = [i for i in source_lst_gen]
+destin_lst = [source_lst[i] for i in range(1, len(source_lst)) if source_lst[i] > source_lst[i - 1]]
+print(f"in: {source_lst}")
+print(f"to: {destin_lst}")
+
+print("B. Потоковая обработка: генерируем данные и тут же не лету обрабатываем:")
+source_lst = []  # инициализируем переменную для хранения исходного массива
+destin_lst = []  # и результирующего
+source_lst_gen = gen_element_random(10)  # инициализируем копию генератора, по которому будем итерировать
+value_previous = next(source_lst_gen)    # первое значение
+source_lst.append(value_previous)        # заносим его в исходный список
+for value in source_lst_gen:
+    source_lst.append(value)
+    if value > value_previous:
+        destin_lst.append(value) # если
+    # готовимся к следующей итерации:
+    # запоминаем пройденный элемент как предыдущий для следующей итерации
+    value_previous = value
+print(f"in: {source_lst}")
+print(f"to: {destin_lst}")
 
 
 print("End")
+
