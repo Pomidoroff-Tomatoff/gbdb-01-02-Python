@@ -33,8 +33,12 @@ def get_number(file_name=DATA_FILENAME):
     with open(file_name, "r") as file_in:
         symbols = []
         while symbol := file_in.read(1):
-            if symbol == SEPARATOR:
-                yield round(float("".join(symbols)), 2)
+            if symbol == SEPARATOR or symbol in "\n\r":
+                number_str = "".join(symbols)
+                if number_str != "":
+                    yield round(float(number_str), 2)
+                else:
+                    pass  # Пустая строка!
                 symbols = []
             else:
                 symbols.extend(symbol)

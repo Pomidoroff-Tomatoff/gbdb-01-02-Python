@@ -13,7 +13,7 @@ print("\n" + homework_type + "\n")
 
 import os, sys, random, time
 
-NUMBERS_AMOUNT_MAX = 100000                       # Количество чисел
+NUMBERS_AMOUNT_MAX = 100000                           # Количество чисел
 SEPARATOR = " "                                       # Разделитель чисел: " ", ",", ";", ";"
 module_name = os.path.basename(sys.argv[0])           # Имя этого модуля...
 module_name = "".join(module_name.split(".py")[:-1])  # ...и без расширения
