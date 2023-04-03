@@ -34,8 +34,8 @@ def get_number(file_name=DATA_FILENAME):
         symbols = []
         while symbol := file_in.read(1):
             if symbol == SEPARATOR or symbol in "\n\r":
-                number_str = "".join(symbols)
-                if number_str != "":
+                number_str = "".join(symbols).strip()  # удаляем граничные пробелы или вообще, если больше ничего нет
+                if number_str and not number_str.isspace():
                     yield round(float(number_str), 2)
                 else:
                     pass  # Пустая строка!
