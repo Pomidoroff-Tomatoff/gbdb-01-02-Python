@@ -22,7 +22,7 @@ with open("6_dict_DATA_handmade.txt", 'r', encoding="utf-8") as file_in:  # "win
     # for string in file_in:
     while string := file_in.readline():
 
-        # Проверяем строку на пустую: из пробелов или непечатных символов.
+        # Проверяем строку на пустую, удаляем непечатные спецсимволы.
         # Если строка путая, то пропускаем итерацию
 
         chars = []
