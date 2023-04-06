@@ -17,11 +17,24 @@ print("\n" + homework_type + "\n")
 
 # Учебные предметы
 
-with open("6_dict_DATA_handmade.txt", 'r', encoding="utf-8") as file_in:  # "windows-1251"
+with open("6_dict_DATA_handmade.txt", 'r', encoding="utf-8") as file_in:  # "windows-1251" "utf-8"
     school = dict()
-    for string in file_in:
+    # for string in file_in:
+    while string := file_in.readline():
 
-        # Ищем посимвольно название учебного предмета в начале строки
+        # Проверяем строку на пустую: из пробелов или непечатных символов.
+        # Если строка путая, то пропускаем итерацию
+
+        chars = []
+        for char in string:
+            if char.isprintable():                    # Пропускаем непечатные спец-символы (к ним относится определние кодировки в начале файла)
+                chars.append(char)
+        string = "".join(chars)
+        if not string or string.isspace():            # Пропускаем итерацию в цикле
+            continue
+
+        # Ищем посимвольно название учебного предмета
+        # в начале строки
 
         chars = []
         for index, char in enumerate(string, start=0):
@@ -39,24 +52,27 @@ with open("6_dict_DATA_handmade.txt", 'r', encoding="utf-8") as file_in:  # "win
         chars = []
         numbers = []
         for char in string[next_start::]:
-            if char.isdigit():
-                chars.extend(char)
-            else:
-                number = ''.join(chars)
-                chars = []
-                if number and not number.isspace():
-                    numbers.append(int(number))
-        else:
-            if len(chars):
-                number = ''.join(chars)
-                numbers.append(int(number))
-                chars = []
+            if char.isdigit():                        # Цифра
+                chars.extend(char)                    # - накапливаем цифры в список
+            else:                                     # Разделитель чисел -- всё, что не цифра
+                number = ''.join(chars)               # - объединяем список цифр в числовую строку
+                chars = []                            # - сбрасываем список цифр в исходное
+                if number and not number.isspace():   # проверка числа
+                    numbers.append(int(number))       # - конвертируем строку цифр в числовой тип
+        else:                                         # Разделитель чисел -- конец строки
+            if len(chars):                            # - если список цифр не пуст
+                number = ''.join(chars)               # - объединяем их в число-строку
+                numbers.append(int(number))           # - конвертируем числовой тип и добаляем в список найденных цифровыз значений
+                chars = []                            # - сбрасываем список цифр в исходное (не обязательно)
 
         # Суммируем найденные учебные часы
         # и записываем их в словарь по названию предмета (ранее найденного)
 
         school[course_name] = sum(numbers)
 
+
 # >>> РЕЗУЛЬТАТ
+print(f"Словарь как есть: \n{school}\n")
+print(f"Словарь построчно \"ключ-значение\":")
 for name, hours in school.items():
     print(f"{name[:20:]:<20s}{hours:>5d}")
