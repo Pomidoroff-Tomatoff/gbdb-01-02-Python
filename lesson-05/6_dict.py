@@ -19,8 +19,7 @@ print("\n" + homework_type + "\n")
 
 with open("6_dict_DATA_handmade.txt", 'r', encoding="utf-8") as file_in:  # "windows-1251" "utf-8"
     school = dict()
-    # for string in file_in:
-    while string := file_in.readline():
+    for string in file_in:
 
         # Проверяем строку на пустую, удаляем непечатные спецсимволы.
         # Если строка путая, то пропускаем итерацию
