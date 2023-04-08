@@ -12,17 +12,18 @@ homework_type = "Lesson-5. 7-json: сериализация списка сло�
         
     Итоговый список сохранить в виде json-объекта в соответствующий файл.
     Пример json-объекта:
-        [{"firm_1": 5000, "firm_2": 3000, "firm_3": 1000}, {"average_profit": 2000}] '''
+        [{"firm_1": 5000, "firm_2": 3000, "firm_3": 1000}, {"average_profit": 2000}] 
+'''
 print("\n" + homework_type + "\n")
 
-import sys, os
+import sys, os, json
 
 
 filename = os.path.basename(sys.argv[0])     # имя этого модуля без маршрута
 filename = filename.split('.')               # выделяем расширение
 filename = "_".join(filename[:-1:])          # оставляем имя файла
 data_file_in  = filename + "__FIRM_handmade.txt"
-data_file_out = filename + "__FIRM_PROGmade.json"
+data_file_out = filename + "__FIRM_progmade.json"
 
 
 def clear_string(s: str = ""):
@@ -40,54 +41,69 @@ def clear_string(s: str = ""):
     return s
 
 
-# Фирмы: получаем список
+# ИСХОДНОЕ: Интерпретируем (анализируем) исходные данные (текстовый файл)
 
-firms = []
-with open(data_file_in, "r", encoding="utf-8") as file_in:
-    firm_info = {}
+profits = []  # прибыли и аналитика
+with open(data_file_in, "r", encoding="utf-8") as file_in:   # "utf-8" "ASCII"
+    profit_firms = {}
     for string in file_in:
-        if not (string := clear_string(string)):  # Подготовка строки...
+        if not (string := clear_string(string)):             # Подготовка строки...
             continue
 
-        # Название фирмы
+        # Название фирмы (идёт в начале)
 
         words = string.split()
         name = []
         for index, word in enumerate(words, start=0):
-            if not word.isdigit():
+            if not word.isdigit():         # в названии фирмы используются цифры, поэтому метод isalpha() не подходит
                 name.append(word)
             else:
                 break
-        name = " ".join(name[:index - 1])
+        name = " ".join(name[:index - 1])  # имя без формы собственности
 
-        # Финансовые показатели
+        # Финансовые показатели (идут после названия)
 
         money = []
         for word in words[index-1::]:
             if word.isdigit():
                 money.append(int(word))
 
-        # firm_info[name] = []
-        # firm_info[name].extend(money)
-        firm_info[name] = money[0] - money[1]
+        profit_firms[name] = money[0] - money[1]
 
-firms.append(firm_info)
+profits.append(profit_firms)
 
-# Вычисляем
-
+# АНАЛИТИКА
+# Вычисляем среднюю прибыль, ...
 i = 0
 profit_sum = 0
-for key, profit in firms[0].items():
+for key, profit in profits[0].items():
     if profit >= 0:
         i += 1
         profit_sum += profit
 else:
     profit_average = profit_sum / i
 
-firm_analytics = {}
-firm_analytics['profit_average'] = profit_average
-firms.append(firm_analytics)
+# Формируем словарь аналитики
+profit_analytics = {}
+profit_analytics['profit_average'] = profit_average
+profit_analytics['profit_sum'] = profit_sum
+profit_analytics['profit_count'] = i
 
-# РЕЗУЛЬТАТ
+# Добавляем словарь аналитики в список словарей о прибылях
+profits.append(profit_analytics)
 
-print(firms)
+# ИТОГИ:
+# Результат в файл json на диск
+
+print("Считаны данные -> dict")
+print(profits)
+
+print("  сериализация:   dict -> json-файл")
+with open(data_file_out, "w", encoding="utf-8") as file_out:
+    json.dump(profits, file_out)
+
+# ПРОВЕРКА: деСериализация JSON с диска,
+print("  деСериализация: json -> dict")
+with open(data_file_out, "r", encoding="utf-8") as file_in:
+    profits_after_serial = json.load(file_in)
+print(profits_after_serial)
