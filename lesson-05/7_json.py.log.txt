@@ -1,0 +1,11 @@
+﻿"C:\Program Files\Python38\python.exe" "X:/GeekBrains/01-01-Python/05 Работа с файлами/lesson-05 code home_work/7_json.py"
+
+Lesson-5. 7-json: сериализация списка словарей
+
+Считаны данные -> dict
+[{'Firm_01': 5000, 'Информационные системы': -50, 'Московский_булочник': -100000, 'Французский кофе': 800}, {'profit_average': 2900.0, 'profit_sum': 5800, 'profit_count': 2}]
+  сериализация:   dict -> json-файл
+  деСериализация: json -> dict
+[{'Firm_01': 5000, 'Информационные системы': -50, 'Московский_булочник': -100000, 'Французский кофе': 800}, {'profit_average': 2900.0, 'profit_sum': 5800, 'profit_count': 2}]
+
+Process finished with exit code 0

@@ -1,0 +1,8 @@
+﻿"C:\Program Files\Python38\python.exe" "X:/GeekBrains/01-01-Python/05 Работа с файлами/lesson-05 code home_work/5_sum_single.py"
+
+Lesson-5. 5-sum-ALL: индивидуальная запись-чтение каждого числа
+
+Запись: 100%    1,000,000   сумма: 49972508.648638   время: 34.97 с     
+Чтение: 100%    1,000,000   сумма: 49972508.648660   время: 32.90 с     
+
+Process finished with exit code 0
