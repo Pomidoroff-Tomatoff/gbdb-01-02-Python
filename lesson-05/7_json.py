@@ -56,7 +56,7 @@ with open(data_file_in, "r", encoding="utf-8") as file_in:   # "utf-8" "ASCII"
         name = []
         for index, word in enumerate(words, start=0):
             if not word.isdigit():         # в названии фирмы используются цифры, поэтому метод isalpha() не подходит
-                name.append(word)
+                name.append(word)          # .isalnum() так же не подходит, так как он "видит" и финансовые показатели
             else:
                 break
         name = " ".join(name[:index - 1])  # имя без формы собственности
@@ -93,16 +93,17 @@ profit_analytics['profit_count'] = i
 profits.append(profit_analytics)
 
 # ИТОГИ:
-# Результат в файл json на диск
+# Результат выводим в файл json на диск
 
-print("Считаны данные -> dict")
+print("Считаны данные -> list-dict")
 print(profits)
 
-print("  сериализация:   dict -> json-файл")
-with open(data_file_out, "w", encoding="utf-8") as file_out:
-    json.dump(profits, file_out)
+print("  сериализация:   list-dict -> json-ф.")
+with open(data_file_out, "w+", encoding="utf-8") as file_out:
+    json.dump(profits, file_out, ensure_ascii=False, indent=4)  # ensure_ascii=False -- кириллицу оставим
 
-# ПРОВЕРКА: деСериализация JSON с диска,
+# ПРОВЕРКА: деСериализация JSON с диска
+
 print("  деСериализация: json -> dict")
 with open(data_file_out, "r", encoding="utf-8") as file_in:
     profits_after_serial = json.load(file_in)
