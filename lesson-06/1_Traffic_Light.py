@@ -14,8 +14,8 @@ print(homework_type)
 import time
 
 
-class traffic_light:
-    __color_list = [['red', 7], ['yellow', 2], ['green', 5]]
+class TrafficLight:
+    __color_list = [('red', 7), ('yellow', 2), ('green', 5)]
     # Наверное, нужно два объекта:
     # -- словарь с цветами (ключ) и задержками
     # -- список с последовательностью исполнения по ключу
@@ -45,15 +45,15 @@ class traffic_light:
                 return
 
             self.__count += 1
-            print(f"цикл: {self.__count} (всего {self.__max_iteration})")
+            print(f"цикл:  {self.__count} (всего {self.__max_iteration})")
 
             for i in work_order_color:
                 color, t = self.__color_list[i]
-                print(f"Color: {color.upper()}, задержка: {t}")
+                print(f"color: {color.upper()}, задержка: {t}")
                 time.sleep(t)
 
 
-a = traffic_light()
+a = TrafficLight()
 a.tl_begin("green")
 
 print("End")
