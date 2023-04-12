@@ -20,10 +20,10 @@ repetition_num = lambda x_list: set(el for el in x_list if x_list.count(el) > 1)
 
 
 # Список случайных элементов
-source_list_len = 10  # задание кол-ва эл-ов в исходном списке
+SOURCE_LIST_LEN = 10  # задание кол-ва эл-ов в исходном списке
 
-print(f"Выполнение задания для случайного набора числе из {source_list_len} элементов")
-source_list = any_repeat_gen(source_list_len)
+print(f"Выполнение задания для случайного набора числе из {SOURCE_LIST_LEN} элементов")
+source_list = any_repeat_gen(SOURCE_LIST_LEN)
 destin_list = non_repetition(source_list)
 repeat_list = repetition_num(source_list)
 

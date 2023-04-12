@@ -33,7 +33,7 @@ def elements_enumerator(src_lst: list, iter_max: int):
             i += 1
 
 
-num_list_start: int = 1
+num_list_start: int = 3
 num_list_end = 10
 max_enum = 25
 

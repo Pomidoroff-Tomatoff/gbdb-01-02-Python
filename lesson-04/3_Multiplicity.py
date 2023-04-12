@@ -5,10 +5,8 @@ homework_type = "Lesson-4. 3-Multiplicity"
 
 print(homework_type)
 
-# source_number_list = [i for i in range(20, 241, 1)]
 multiplicity_numbers = [i for i in range(20, 241) if i % 20 == 0 or i % 21 == 0]
 
-# print(source_number_list)
 print(multiplicity_numbers)
 
 print("End")

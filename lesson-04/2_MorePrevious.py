@@ -12,25 +12,25 @@ from random import randint
 print(homework_type)
 
 
-# Генератор (функция-генератор)
+# Итератор для генерации случайных чисел
 def gen_element_random(total=10, value_min=0, value_max=100):
     for i in range(total):
         yield randint(value_min, value_max)
-        
 
-# Преобразователь списка в виде функции
+
+# Итератор по списку
 def more_previous(source_list):
-    destin_list = []
+    ''' Возвращает элемент, если он больше предыдущего, начинаем со 2-ого элемента '''
     for i in range(1, len(source_list)):
         if source_list[i] > source_list[i - 1]:
-            destin_list.append(source_list[i])
-    return destin_list
+            yield source_list[i]
+    return None
 
 
 print("A. Генератор в списковом ключении (list comprehension) для создания исходного массива и преобразование ввиде функций:")
 source_lst_gen = gen_element_random(10)
 source_lst = [i for i in source_lst_gen]
-destin_lst = more_previous(source_lst)
+destin_lst = [i for i in more_previous(source_lst)]
 print(f"in: {source_lst}")
 print(f"to: {destin_lst}")
 
