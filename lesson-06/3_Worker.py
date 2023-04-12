@@ -20,11 +20,11 @@ class Worker:
         self.surname = surname
         self.position = position  # должность
 
-
     def set_income(self, wage, bonus):
         self.__income['wage'] = wage
         self.__income['bonus'] = bonus
 
+    @property
     def get_income(self):
          return  self.__income['wage'] + self.__income['bonus']
 
@@ -33,16 +33,16 @@ class Position(Worker):
     def __init__(self, name, surname, position):
         super().__init__(name, surname, position)
 
+    @property
     def full_name(self):
         return self.name + ' ' + self.surname
-
 
 
 w = Position("Иван", "Петров", "продавец")
 w.set_income(1000, 100)
 
-print(f"Полное имя работника: «{w.full_name()}»")
-print(f"Доход работника: {w.get_income()} р")
+print(f"Полное имя работника: «{w.full_name}»")
+print(f"{'Доход работника:':>21s} {w.get_income} р")
 
 
 print("End")

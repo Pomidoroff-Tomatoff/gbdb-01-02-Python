@@ -17,6 +17,7 @@ class Stationery:
     def set_title(self, title=""):
         self.__title = title
 
+    @property
     def get_title(self):
         return self.__title
 
@@ -29,7 +30,7 @@ class Pen(Stationery):
         super().__init__(title='Карандаш')
 
     def draw(self):
-        print(f"Запускаем отрисовку линии меняющейся толщины при помощи принадлежности «{self.get_title()}»")
+        print(f"Запускаем отрисовку линии меняющейся толщины при помощи принадлежности «{self.get_title}»")
 
 
 class Pencil(Stationery):
@@ -37,7 +38,7 @@ class Pencil(Stationery):
         super().__init__(title='Ручка')
 
     def draw(self):
-        print(f"Рисую ТОНКУЮ линию при помощи принадлежности \"{self.get_title()}\".")
+        print(f"Рисую ТОНКУЮ линию при помощи принадлежности \"{self.get_title}\".")
 
 
 class Handle(Stationery):
@@ -45,7 +46,7 @@ class Handle(Stationery):
         super().__init__(title='Маркер')
 
     def draw(self):
-        print(f"Выполняю выделение принадлежностью \"{self.get_title()}\".")
+        print(f"Выполняю выделение принадлежностью \"{self.get_title}\".")
 
 
 p_1 = Pen()
