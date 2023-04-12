@@ -76,6 +76,8 @@ def pay():
 if __name__ == "__main__":
     print(homework_type)
     if not script_usage_verify() > 10:
-        print(f"Расчитанная оплата: {pay()}")
+        print(f"Рассчитанная оплата: {pay()}")
     else:
         exit(1)
+else:
+    print("Запуск из модуля")
