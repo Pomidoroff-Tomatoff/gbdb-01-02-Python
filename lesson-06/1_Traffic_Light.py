@@ -15,9 +15,14 @@ import time
 
 
 class TrafficLight:
-    __color_list = [('red', 7, "\033[31m"), ('yellow', 2, "\033[33m"), ('green', 5, "\033[32m")]
-    __con_color_reset = "\033[0m"
-    __con_color_swap =  "\033[7m"
+    ''' Светофор '''
+    __con_color_red =    "\033[31m"
+    __con_color_yellow = "\033[33m"
+    __con_color_green =  "\033[32m"
+    __con_color_reset =  "\033[0m"
+    __con_color_swap =   "\033[7m"
+    __color_list = [('red', 7, __con_color_red), ('yellow', 2, __con_color_yellow), ('green', 5, __con_color_green)]
+
     # Наверное, нужно два объекта:
     # -- словарь с цветами (ключ) и задержками
     # -- список с последовательностью исполнения по ключу
