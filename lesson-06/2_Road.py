@@ -12,20 +12,25 @@ print(homework_type)
 
 
 class Road():
-    __length = 0  # metre
-    __width = 0   # metre
-    __thickness = 5  # см
-    __mass_on_1_thickness = 25  # кг
 
-    def mass(self, road_width=20, road_length=5000):
-        print(f"Дорожное покрытие: ширина {road_width} м, длина {road_length} м")
+    def __init__(self, length: float = 0, width: float = 0):
+        self.__length = length            # metre
+        self.__width = width              # metre
+        self.__thickness = 5              # см
+        self.__mass_on_1_thickness = 25   # кг
+
+    def mass(self):
+        road_length = self.__length
+        road_width = self.__width
+
         mass_asphalt = self.__mass_on_1_thickness * self.__thickness * road_length * road_width
-        print(f"--расчётная масса асфальта: {mass_asphalt} кг")
+        print(f"Дорожное покрытие: ширина {road_width} м; длина {road_length} м; масса {mass_asphalt:,d} кг")
         return mass_asphalt
 
 
-r = Road()
-r.mass(1, 1)
-r.mass()
+r1 = Road(length=5000, width=20)
+r1.mass()
+r2 = Road(length=1, width=1)
+r2.mass()
 
 print("End")

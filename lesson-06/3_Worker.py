@@ -13,36 +13,47 @@ print(homework_type)
 
 class Worker:
 
-    __income = {'wage': 0, 'bonus': 0}  # доход
-
     def __init__(self, name, surname, position):
         self.name = name
         self.surname = surname
         self.position = position  # должность
+        self.__income = {'wage': 0, 'bonus': 0}  # доход
 
-    def set_income(self, wage, bonus):
+    def _set_income_wage(self, wage=0):
         self.__income['wage'] = wage
+
+    def _set_income_bonus(self, bonus=0):
         self.__income['bonus'] = bonus
 
-    @property
-    def get_income(self):
-         return  self.__income['wage'] + self.__income['bonus']
+    def _get_income_wage(self):
+         return self.__income['wage']
+
+    def _get_income_bonus(self):
+         return self.__income['bonus']
 
 
 class Position(Worker):
     def __init__(self, name, surname, position):
         super().__init__(name, surname, position)
 
+    def set_total_income(self, wage=0, bonus=0):
+        self._set_income_wage(wage=wage)
+        self._set_income_bonus(bonus=bonus)
+
     @property
-    def full_name(self):
+    def get_total_income(self, ):
+        return self._get_income_wage() + self._get_income_bonus()
+
+    @property
+    def get_full_name(self):
         return self.name + ' ' + self.surname
 
 
 w = Position("Иван", "Петров", "продавец")
-w.set_income(1000, 100)
+w.set_total_income(wage=1000, bonus=100)
 
-print(f"Полное имя работника: «{w.full_name}»")
-print(f"{'Доход работника:':>21s} {w.get_income} р")
+print(f"{'Полное имя работника:':<25s} «{w.get_full_name}»")
+print(f"{'Общий доход работника:':<25s} {w.get_total_income} р")
 
 
 print("End")

@@ -15,7 +15,14 @@ import time
 
 
 class TrafficLight:
-    __color_list = [('red', 7), ('yellow', 2), ('green', 5)]
+    ''' Светофор '''
+    __con_color_red =    "\033[31m"
+    __con_color_yellow = "\033[33m"
+    __con_color_green =  "\033[32m"
+    __con_color_reset =  "\033[0m"
+    __con_color_swap =   "\033[7m"
+    __color_list = [('red', 7, __con_color_red), ('yellow', 2, __con_color_yellow), ('green', 5, __con_color_green)]
+
     # Наверное, нужно два объекта:
     # -- словарь с цветами (ключ) и задержками
     # -- список с последовательностью исполнения по ключу
@@ -45,12 +52,13 @@ class TrafficLight:
                 return
 
             self.__count += 1
-            print(f"цикл:  {self.__count} (всего {self.__max_iteration})")
+            print(self.__con_color_swap + f"цикл:  {self.__count} (всего {self.__max_iteration})" + self.__con_color_reset)
 
             for i in work_order_color:
-                color, t = self.__color_list[i]
-                print(f"color: {color.upper()}, задержка: {t}")
+                color, t, con_color = self.__color_list[i]
+                print(f"color: {con_color} {color.upper():<10s}{self.__con_color_reset}  задержка: {t}")
                 time.sleep(t)
+
 
 
 a = TrafficLight()

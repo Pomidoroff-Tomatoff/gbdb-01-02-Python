@@ -33,7 +33,7 @@ class Car:
         self.__speed = 0
         self.__direction, self.__direction_name = Car.__directs_dict['forward']
         self.__turn, self.__turn_name = Car.__turns_dict['straight']
-        # self.__car_speed_max -- не передать приватную переменную для дочерних классов
+        self.__car_speed_max = 40   # дочерние классы должны переопределить атрибут
         self.info_car = ""
         print(f"\nСоздана машина по имени «{self.__name}», "
               f"цвета «{self.__color}», типа \"{self.__type_car}\", "
@@ -86,9 +86,6 @@ class TownCar(Car):
         super().__init__(name, color, is_police=False, type_car='TownCar')
         self.info = "Городской автомобиль"
         self.__car_speed_max = 60  # область видимости -- только это класс, но больше нам и не надо
-        # __speed доступна только в классе-родителе, где она определена
-        # чтобы получить к ней доуступ необходим нЕприватный метод класса их этого эже класса,
-        # то есть в родетеле Car.
 
     def show_speed(self):
         if self.get_speed() > self.__car_speed_max:

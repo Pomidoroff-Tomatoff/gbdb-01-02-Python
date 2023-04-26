@@ -15,6 +15,7 @@ class Stationery:
         self.__title = title
 
     def set_title(self, title=""):
+        print(f" * изменение наименования объекта \"{self.__title}\" на новое \"{title}\"")
         self.__title = title
 
     @property
@@ -57,6 +58,9 @@ p_2.draw()
 
 h = Handle()
 h.draw()
+h.set_title("выделитель")
+h.draw()
+# print(h.__title)  # AttributeError: 'Handle' object has no attribute '__title'
 
 
 print("End")
