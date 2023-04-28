@@ -27,7 +27,7 @@ import copy, time
 
 
 class Matrix:
-    ''' Матрица из целых цисле '''
+    ''' Матрица из целых цисел '''
 
     def __init__(self, matrix: list = []):
         self.__dim = self.__calculate_dimensions(matrix)
@@ -74,19 +74,33 @@ class Matrix:
         if not isinstance(y_matrix, self.__class__):
             raise ValueError(f"Матрицы должны быть одного типа {self.__class__}")
 
-        y_matrix_dim = y_matrix.get_dim()
-        if y_matrix_dim != self.__dim:
+        # y_matrix_dim =
+        if y_matrix.get_dim() != self.__dim:
             raise ValueError("Матрицы должны быть одинаковой размерности")
 
-        sum_matrix = []
-        for line in range(y_matrix_dim[0]):
+        sum_matrix = []                 # список для новой пустой матрицы
+        for line in range(self.__dim[0]):
             sum_matrix.append([])       # добавляем пустую строку
-            for column in range(y_matrix_dim[1]):
-                # print(f"{self.__matrix[line][column]=}")
+            for column in range(self.__dim[1]):
                 sum_matrix[line].append(self.__matrix[line][column] + y_matrix[line][column])
 
         return self.__class__(sum_matrix)
-        # return self.this_class()(sum_matrix)
+        # return self.this_class()(sum_matrix)  # можно и так вернуть новый экземпляр
+
+    def __iadd__(self, y_matrix):
+        ''' добавление к исходной другой матрицы '''
+        # Проверка типа
+        if not isinstance(y_matrix, self.__class__):
+            raise ValueError(f"Матрицы должны быть одного типа {self.__class__}")
+        # Проверка размерности
+        if y_matrix.get_dim() != self.__dim:
+            raise ValueError("Матрицы должны быть одинаковой размерности")
+
+        for line in range(self.__dim[0]):
+            for column in range(self.__dim[1]):
+                self.__matrix[line][column] += y_matrix[line][column]
+
+        return self
 
     @classmethod
     def this_class(cls):
@@ -106,8 +120,10 @@ print("Исходная квадратная матрица 1:")
 print(m1)
 m2 = Matrix(l2)
 print("Исходная квадратная матрица 2:\n" + str(m2))
-
 print("Сложение исходных квадратных матриц 1 и 2:\n" + str(m1 + m2))
+
+m1 += m2
+print("Исходная квадратная матрица 1 после добавления к ней матрицы 2:\n" + str(m1))
 
 print("Сложение матриц 5 на 2:\n",
     Matrix([[1, 2], [11, -12], [21, 22], [31, 32], [41, 42]]) +
