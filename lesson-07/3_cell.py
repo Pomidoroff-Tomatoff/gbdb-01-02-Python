@@ -47,10 +47,9 @@ import abc
 
 class Fiber(abc.ABC):
     '''
-        Волокно:
-        -- основная проверка ошибок
-        -- базовые методы
-        -- предполагалось, что идея разбить класс на шаблон и рабочий -- хорошая...
+        Волокно (шаблон):
+        -- проверка входящих данных
+        -- клетки в приватной переменной + интерфейс к ней...
     '''
     def __init__(self, quantity: int = None):
         if quantity is None or quantity <= 0:
@@ -67,12 +66,33 @@ class Fiber(abc.ABC):
             raise ValueError("Ошибка параметра: количество клеток задаётся только целым числом, а не типом {}".format(type(quantity)))
         self.__quantity = quantity
 
+    def __type_matching_check(self, other):  # проверка типа другого операнда
+        if not isinstance(other, self.__class__):
+            raise ValueError("Ошибка: типы должны соответствовать {}".format(self.__class__))
+
+    def __add__(self, other):
+        self.__type_matching_check(other)
+
+    def __iadd__(self, other):
+        self.__type_matching_check(other)
+
+    def __sub__(self, other):
+        self.__type_matching_check(other)
+
+    def __mul__(self, other):
+        self.__type_matching_check(other)
+
+    def __truediv__(self, other):
+        self.__type_matching_check(other)
+        if other.get_quantity() == 0:
+            raise ValueError("Ошибка деления: делить на ноль нельзя.")
+
     pass  # Fiber
 
 
 class Cellulose(Fiber):
     '''
-        Целлюлоза
+        Клетки, объединённые в единую ткань -- Целлюлозу
     '''
     def __init__(self, quantity: int):
         super().__init__(quantity=quantity)
@@ -84,37 +104,37 @@ class Cellulose(Fiber):
         return "Количество клеток (ячеек) в ткани = {}".format(self.get_quantity())
 
     def __add__(self, other):
+        super().__add__(other)
         sum_quantity = self.__class__(self.get_quantity() + other.get_quantity())
         return sum_quantity
 
     def __iadd__(self, other):
+        super().__iadd__(other)
         self.set_quantity(self.get_quantity() + other.get_quantity())
         return self
 
     def __sub__(self, other):
+        super().__sub__(other)
         sub_quantity = self.get_quantity() - other.get_quantity()
         if sub_quantity <= 0:
             raise ValueError("Ошибка вычитания: вычитающий объект больше вычитаемого")
         return self.__class__(sub_quantity)
 
     def __mul__(self, other):
-        if not isinstance(other, self.__class__):
-            raise ValueError("Ошибка: типы должны соответствовать {}".format(self.__class__))
+        super().__mul__(other)
         multiply = self.get_quantity() * other.get_quantity()
         return self.__class__(multiply)
 
     def __truediv__(self, other):
-        if not isinstance(other, self.__class__):
-            raise ValueError("Ошибка: типы должны соответствовать {}".format(self.__class__))
-        if other.get_quantity() == 0:
-            raise ValueError("Ошибка деления: делить на ноль нельзя.")
+        super().__truediv__(other)
         division = self.get_quantity() // other.get_quantity()
         if division <= 0:
             raise ValueError("Ошибка деления: результатом целочисленного деления не может быть ноль (0)")
         return self.__class__(division)
 
     def __floordiv__(self, other):
-        return self.__truediv__(other)
+        division_class = self.__truediv__(other)
+        return division_class
 
     def make_order(self, row_size: int = None):
         ''' Метод возвращает ряды клеток (ячеек) '''
@@ -132,9 +152,10 @@ class Cellulose(Fiber):
 
 fiber_01 = Cellulose(1)
 fiber_02 = Cellulose(3)
+print(f"Сложение ... {(Cellulose(2) + Cellulose(1))()  = }")
 print(f"Вычитание .. {(Cellulose(2) - Cellulose(1))()  = }")
 fiber_01 += fiber_02
-print(f"Сложение с добавкой fiber_01 += fiber_02 .... = {fiber_01()}")
+print(f"Сложение с добавкой fiber_01 += fiber_02 ...  = {fiber_01()}")
 print(f"Умножение .. {(Cellulose(2) * Cellulose(3))()  = }")
 print(f"Деление .... {(Cellulose(7) / Cellulose(2))()  = }")
 print(f"Деление .... {(Cellulose(3) // Cellulose(2))() = }")
