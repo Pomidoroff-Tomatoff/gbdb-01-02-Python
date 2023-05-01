@@ -37,91 +37,114 @@ homework_type = "Lesson-7. 3-Cellulose: Cell in biology"
         подробный список операторов для перегрузки доступен по ссылке (https://pythonworld.ru/osnovy/peregruzka-operatorov.html).
 
      ИСПРАВЛЕНИЯ:
+     ИСПРАВЛЕНИЯ:
         1. Клетка не может состоять из ячеек -- нет такого в биологии. 
            Но клеточная ткань может состоять из клеток. 
            Реализация класса: как клеточная ткань (клетчатка, целюлоза), 
            состоящая из клеток.
-        2. Вынос проверок аргумента в родительский класс, см. 3_cell_experiment.py
+        2. эксперимент с родительским классом для выноса проверок аргументов...
      '''
 print(homework_type)
 
+import time
+import abc
 
-class Cellulose:
+class Fiber(abc.ABC):
     '''
-        Клетки объединённые в единую ткань -- Целлюлозу
+        Волокно (шаблон):
+        -- проверка входящих данных
+        -- клетки в приватной переменной + интерфейс к ней...
     '''
-    def __init__(self, cells: int = None):
-        if cells is None or cells <= 0:
+    def __init__(self, quantity: int = None):
+        if quantity is None or quantity <= 0:
             raise ValueError("Ошибка инициализации: количество клеток не должно быть = {}".format(quantity))
-        if not isinstance(cells, int):
-            raise ValueError("Ошибка инициализации: количество клеток задаётся только целым числом (int), а не типом {}".format(type(quantity)))
+        if not isinstance(quantity, int):
+            raise ValueError("Ошибка инициализации: количество клеток задаётся только целым числом, а не типом {}".format(type(quantity)))
 
-        self.__cells = cells  # количество клеток (приватное)
-
-    def get_cells(self):  # интерфейс к приватному атрибуту вне класса на чтение
-        return self.__cells
-
-    def __type_verify(self, other):  # проверка типа операнда (аргумента)
+    def __type_matching_check(self, other):  # проверка типа другого операнда
         if not isinstance(other, self.__class__):
-            raise TypeError("Ошибка: типы операндов должны соответствовать {}".format(self.__class__))
-
-    def __call__(self):
-        return self.get_cells()
-
-    def __str__(self):
-        return "Количество клеток (ячеек) в ткани = {}".format(self.get_cells())
+            raise ValueError("Ошибка: типы должны соответствовать {}".format(self.__class__))
 
     def __add__(self, other):
-        self.__type_verify(other)  # проверка типа аргумента
-        sum_quantity = self.get_cells() + other.get_cells()
-        sum_obj = self.__class__(sum_quantity)
-        return sum_obj
+        self.__type_matching_check(other)
 
     def __iadd__(self, other):
-        self.__type_verify(other)  # проверка типа аргумента
-        self.__cells += other.get_cells()
+        self.__type_matching_check(other)
+
+    def __sub__(self, other):
+        self.__type_matching_check(other)
+
+    def __mul__(self, other):
+        self.__type_matching_check(other)
+
+    def __truediv__(self, other):
+        self.__type_matching_check(other)
+        if other.get_quantity() == 0:
+            raise ValueError("Ошибка деления: делить на ноль нельзя.")
+
+    def make_order(self, row_size: int = None):
+        if not isinstance(row_size, int) or row_size is None or row_size <= 0:
+            raise ValueError(f"Ряды ячеек: Недопустимое значение ряда {row_size = }")
+
+    pass  # Fiber
+
+
+class Cellulose(Fiber):
+    '''
+        Клетки, объединённые в единую ткань -- Целлюлозу
+    '''
+    def __init__(self, quantity: int):
+        super().__init__(quantity=quantity)
+        self.__quantity = quantity
+
+    def get_quantity(self):  # интерфейс к атрибуту
+        return self.__quantity
+
+    def __call__(self):
+        return self.get_quantity()
+
+    def __str__(self):
+        return "Количество клеток (ячеек) в ткани = {}".format(self.get_quantity())
+
+    def __add__(self, other):
+        super().__add__(other)
+        return self.__class__(self.get_quantity() + other.get_quantity())
+
+    def __iadd__(self, other):
+        super().__iadd__(other)
+        self.__quantity += other.get_quantity()
         return self
 
     def __sub__(self, other):
-        self.__type_verify(other)  # проверка типа аргумента
-        sub_quantity = self.get_cells() - other.get_cells()
+        super().__sub__(other)
+        sub_quantity = self.get_quantity() - other.get_quantity()
         if sub_quantity <= 0:
             raise ValueError("Ошибка вычитания: вычитающий объект больше вычитаемого")
-        sub_obj = self.__class__(sub_quantity)
-        return sub_obj
+        return self.__class__(sub_quantity)
 
     def __mul__(self, other):
-        self.__type_verify(other)  # проверка типа аргумента
-
-        multiply_quantity = self.get_cells() * other.get_cells()
-        multiply_obj = self.__class__(multiply_quantity)
-        return multiply_obj
+        super().__mul__(other)
+        return self.__class__(self.get_quantity() * other.get_quantity())
 
     def __truediv__(self, other):
-        self.__type_verify(other)  # проверка типа аргумента
-        if other.get_cells() == 0:
-            raise ValueError("Ошибка деления: делить на ноль нельзя.")
-
-        division = self.get_cells() // other.get_cells()
+        super().__truediv__(other)
+        division = self.get_quantity() // other.get_quantity()
         if division <= 0:
             raise ValueError("Ошибка деления: результатом целочисленного деления не может быть ноль (0)")
         return self.__class__(division)
 
     def __floordiv__(self, other):
-        division_obj = self.__truediv__(other)
-        return division_obj
+        return self.__truediv__(other)
 
     def make_order(self, row_size: int = None):
-        ''' Метод возвращает ряды клеток (ячеек) '''
-        if not isinstance(row_size, int) or row_size is None or row_size <= 0:
-            raise ValueError(f"Ряды ячеек: Недопустимое значение ряда {row_size = }")
-
-        full_rows = self.get_cells() // row_size
-        partial_size = self.get_cells() - full_rows * row_size
+        ''' ряды клеток  '''
+        super().make_order(row_size=row_size)  # проверка аргумента
+        full_rows = self.get_quantity() // row_size
+        partial_size = self.get_quantity() - full_rows * row_size
         rows = ("*" * row_size + "\n") * full_rows + "*" * partial_size + "\n"
         return rows
 
-    pass  # Cellulose
+    pass  # Cellulose(Fiber)
 
 
 # Поехали!
