@@ -1,5 +1,5 @@
 # GeekBrains > Python basics: Oleg Gladkiy (https://geekbrains.ru/users/3837199)
-homework_type = "Lesson-7. 3-Cellulose: Cell in biology"
+homework_type = "Lesson-7. 3-Cellulose: Cell in biology (experimentary)"
 '''
 # 3. Реализовать программу работы с органическими клетками, состоящими из ячеек. 
      Необходимо создать класс Клетка. 
@@ -42,7 +42,16 @@ homework_type = "Lesson-7. 3-Cellulose: Cell in biology"
            Но клеточная ткань может состоять из клеток. 
            Реализация класса: как клеточная ткань (клетчатка, целюлоза), 
            состоящая из клеток.
-        2. эксперимент с родительским классом для выноса проверок аргументов...
+        2. эксперимент с родительским классом и "движком" из приватных методами в нём для следующего:
+           > вынос проверок аргументов только в родительский класс
+           > разрешение ограничения использования приватных методов рамками класса:
+           > передача приватного метода от экз. родителя к экз. потомка:
+             -- задействуем конструкторы экземпляров классов
+             -- передаём адрес метода от родительского экземпляра к дочернему экз. классу
+                при помощи не приватных переменных
+             -- пере-присваиваем адреса приватныех родительскиех методов дочерним приватным атрибутам,
+                которые теперь станут методами (если к ним так обращаться).  
+             -- удаляем в экз. потомка неприватные переменные передачи адресов, чтобы не было возможности... 
      '''
 print(homework_type)
 
@@ -53,17 +62,36 @@ class Fiber(abc.ABC):
     '''
         Волокно (шаблон):
         -- проверка входящих данных
-        -- клетки в приватной переменной + интерфейс к ней...
     '''
     def __init__(self, quantity: int = None):
         if quantity is None or quantity <= 0:
             raise ValueError("Ошибка инициализации: количество клеток не должно быть = {}".format(quantity))
         if not isinstance(quantity, int):
-            raise ValueError("Ошибка инициализации: количество клеток задаётся только целым числом, а не типом {}".format(type(quantity)))
+            raise TypeError("Ошибка инициализации: количество клеток задаётся только целым числом, а не типом {}".format(type(quantity)))
+
+        self.__cells = quantity  # ГЛАВНЫЙ АТРИБУТ
+
+        # передача наследнику адресов приватных методов неприватными атрибутами...
+        self._function__set_cells_quantity = self.__set_cells_quantity
+
+    def __set_cells_quantity(self, quantity: int = 0):  # интерфейс к атрибуту
+        # self.__init__(quantity)
+        if quantity is None or quantity <= 0:
+            raise ValueError("Ошибка инициализации: количество клеток {} не должно быть больше нуля".format(quantity))
+        if not isinstance(quantity, int):
+            raise TypeError("Ошибка: количество клеток задаётся только целым числом, а не типом {}".format(type(quantity)))
+        self.__cells = quantity
+        return self.__cells
+
+    def get_cells_quantity(self):  # интерфейс к атрибуту
+        return self.__cells
+
+    def len(self):                 # интерфейс, повтор для удобства
+        return self.__cells
 
     def __type_matching_check(self, other):  # проверка типа другого операнда
         if not isinstance(other, self.__class__):
-            raise ValueError("Ошибка: типы должны соответствовать {}".format(self.__class__))
+            raise TypeError("Ошибка: типы должны соответствовать {}".format(self.__class__))
 
     def __add__(self, other):
         self.__type_matching_check(other)
@@ -73,13 +101,15 @@ class Fiber(abc.ABC):
 
     def __sub__(self, other):
         self.__type_matching_check(other)
+        if self.get_cells_quantity() < other.get_cells_quantity():
+            raise ValueError("Ошибка вычитания: вычитающий объект больше вычитаемого")
 
     def __mul__(self, other):
         self.__type_matching_check(other)
 
     def __truediv__(self, other):
         self.__type_matching_check(other)
-        if other.get_quantity() == 0:
+        if other.get_cells_quantity() == 0:
             raise ValueError("Ошибка деления: делить на ноль нельзя.")
 
     def make_order(self, row_size: int = None):
@@ -93,42 +123,39 @@ class Cellulose(Fiber):
     '''
         Клетки, объединённые в единую ткань -- Целлюлозу
     '''
-    def __init__(self, quantity: int):
-        super().__init__(quantity=quantity)
-        self.__quantity = quantity
-
-    def get_quantity(self):  # интерфейс к атрибуту
-        return self.__quantity
+    def __init__(self, cells: int):
+        super().__init__(quantity=cells)
+        # Получаем приватные методы от родителя (и заметам следы):
+        self.__set_cells_quantity = self._function__set_cells_quantity
+        self._function__set_cells_quantity = None
+        del self._function__set_cells_quantity
 
     def __call__(self):
-        return self.get_quantity()
+        return self.get_cells_quantity()
 
     def __str__(self):
-        return "Количество клеток (ячеек) в ткани = {}".format(self.get_quantity())
+        return "Количество клеток (ячеек) в ткани = {}".format(self.get_cells_quantity())
 
     def __add__(self, other):
         super().__add__(other)
-        return self.__class__(self.get_quantity() + other.get_quantity())
+        return self.__class__(self.get_cells_quantity() + other.get_cells_quantity())
 
     def __iadd__(self, other):
         super().__iadd__(other)
-        self.__quantity += other.get_quantity()
+        self.__set_cells_quantity(self.get_cells_quantity() + other.get_cells_quantity())
         return self
 
     def __sub__(self, other):
         super().__sub__(other)
-        sub_quantity = self.get_quantity() - other.get_quantity()
-        if sub_quantity <= 0:
-            raise ValueError("Ошибка вычитания: вычитающий объект больше вычитаемого")
-        return self.__class__(sub_quantity)
+        return self.__class__(self.get_cells_quantity() - other.get_cells_quantity())
 
     def __mul__(self, other):
         super().__mul__(other)
-        return self.__class__(self.get_quantity() * other.get_quantity())
+        return self.__class__(self.get_cells_quantity() * other.get_cells_quantity())
 
     def __truediv__(self, other):
         super().__truediv__(other)
-        division = self.get_quantity() // other.get_quantity()
+        division = self.get_cells_quantity() // other.get_cells_quantity()
         if division <= 0:
             raise ValueError("Ошибка деления: результатом целочисленного деления не может быть ноль (0)")
         return self.__class__(division)
@@ -139,8 +166,8 @@ class Cellulose(Fiber):
     def make_order(self, row_size: int = None):
         ''' ряды клеток  '''
         super().make_order(row_size=row_size)  # проверка аргумента
-        full_rows = self.get_quantity() // row_size
-        partial_size = self.get_quantity() - full_rows * row_size
+        full_rows = self.get_cells_quantity() // row_size
+        partial_size = self.get_cells_quantity() - full_rows * row_size
         rows = ("*" * row_size + "\n") * full_rows + "*" * partial_size + "\n"
         return rows
 
@@ -150,6 +177,8 @@ class Cellulose(Fiber):
 # Поехали!
 
 fiber_01 = Cellulose(1)
+print(f"{fiber_01() = }")
+print(fiber_01)
 print(f"Сложение ... {(Cellulose(2) + Cellulose(1))()  = }")
 print(f"Вычитание .. {(Cellulose(2) - Cellulose(1))()  = }")
 fiber_01 += Cellulose(3)
@@ -158,6 +187,7 @@ print(f"Умножение .. {(Cellulose(2) * Cellulose(3))()  = }")
 print(f"Деление .... {(Cellulose(7) / Cellulose(2))()  = }")
 print(f"Деление .... {(Cellulose(3) // Cellulose(2))() = }")
 print(f"РЯДЫ:\n{(rows:=Cellulose(22).make_order(6)) = }\nИЛИ:\n{rows}")
+
 
 
 print("End")
