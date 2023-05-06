@@ -34,16 +34,16 @@ class TrafficLight:
     def tl_begin(self, start_color='red'):
 
         if start_color.upper() == 'red'.upper():
-            work_order_color = [0, 1, 2]
+            work_order_color = [0, 1, 2, 1]
             print("Начинаем с ", start_color.upper())
         elif start_color.upper() == 'yellow'.upper():
-            work_order_color = [1, 2, 0]
+            work_order_color = [1, 2, 1, 0]
             print("Начинаем с ", start_color.upper())
         elif start_color.upper() == 'green'.upper():
-            work_order_color = [2, 0, 1]
+            work_order_color = [2, 1, 0, 1]
             print("Начинаем с ", start_color.upper())
         else:
-            work_order_color = [0, 1, 2]
+            work_order_color = [0, 1, 2, 1]
             print("Неверно указан цвет, начинаем с красного")
 
         while self.__count < self.__max_iteration:
@@ -62,6 +62,6 @@ class TrafficLight:
 
 
 a = TrafficLight()
-a.tl_begin("green")
+a.tl_begin("red")
 
 print("End")
