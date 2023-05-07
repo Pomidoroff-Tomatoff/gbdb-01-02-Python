@@ -25,7 +25,7 @@ class TrafficLights:
     __GRN = "g"
     __colorcode_RED = "\033[31m"     # Команды включения огня светофора
     __colorcode_YEL = "\033[33m"     # и, по совместительству,
-    __colorcode_GRN = "\033[32m"     # esc-последовательности управления цветом текстом (фона)
+    __colorcode_GRN = "\033[32m"     # esc-последовательности управления цветом (текста или фона)
     __colorcode_reset="\033[0m"      # в консоли.
     __colorcode_swap ="\033[7m"
     __colors = {
@@ -46,27 +46,34 @@ class TrafficLights:
     __keys = [__RED, __YEL, __GRN, __YEL,]
 
     def __init__(self, start_color: str = __RED):
-        self.start_color = start_color
-        if  start_color.upper() == self.__RED.upper() or \
-            start_color.upper() == self.__colors[self.__RED]['name'].upper():
-            keys = []
-        elif start_color.upper() == self.__GRN.upper() or \
-             start_color.upper() == self.__colors[self.__GRN]['name'].upper():
-            keys = [self.__GRN, self.__YEL]
-        elif start_color.upper() == self.__YEL.upper() or \
-             start_color.upper() == self.__colors[self.__YEL]['name'].upper():
-            keys = [self.__YEL]
+        self.current_color_name = ""    # текущие огни запущенного светофора
+        self.current_glow_time = 0      # или значения используемого
+        self.current_colorcode = ""     # итератора класса
+
+        self.start_color = start_color.upper()
+        if False:
+            pass  # для удобства чтения и красоты...
+
+        elif self.start_color == self.__RED.upper() or \
+             self.start_color == self.__colors[self.__RED]['name'].upper():
+
+            self.__key_index_start = 0
+
+        elif self.start_color == self.__GRN.upper() or \
+             self.start_color == self.__colors[self.__GRN]['name'].upper():
+
+            self.__key_index_start = -2
+
+        elif self.start_color == self.__YEL.upper() or \
+             self.start_color == self.__colors[self.__YEL]['name'].upper():
+
+            self.__key_index_start = -1
+
         else:
             raise ValueError("Ошибка задания начального цвета огня Светофора.")
 
-        keys.extend(self.__keys)                  # к стартовой послед-ти + основную...
-        self.__keys_iter = itertools.cycle(keys)  # бесконечный итератор по ключам
-
-        self.current_color_name = ""              # текущие огни запущенного светофора
-        self.current_glow_time = 0                # или значения используемого
-        self.current_colorcode = ""               # итератора класса
-
     def __iter__(self):
+        self.__keys_iter = self.circle(iterable=self.__keys, start=self.__key_index_start)
         for key in self.__keys_iter:
             self.current_glow_time =  self.__colors[key]['glow_time']
             self.current_color_name = self.__colors[key]['name']
@@ -95,14 +102,37 @@ class TrafficLights:
         return f"{self.current_colorcode}{self.current_color_name.upper():<10s}{self.__colorcode_reset} " + \
                f" время свечения: {self.current_glow_time} секунд"
 
+    def circle(self, iterable: list = [], start: int = 0):
+        ''' бесконечный цикл по последовательности с указанием начального элемента в первом цикле '''
+        if (length := len(iterable)) > 0:
+            if start >= 0:
+                if not start < length:
+                    start = (start + 1) % length - 1
+            else:
+                if -start > length:
+                    start = start % length * (-1)
+        else:  # пустой список!!!
+            return None  # нам нечего перечислять -- останавливаемся.
+
+        index = start
+
+        while True:
+            index = 0 if not index < len(iterable) else index
+            yield iterable[index]
+            index += 1
+
+        pass  # cycle
+
     pass  # TrafficLights
 
 
-# Поехали
+# Поехали!
+# создаём итератор-класс и... огоньки зажигайтесь!
 
-tl = TrafficLights("Y")                     # создаём итератор-класс
+tl = TrafficLights("G")
 for i, values in enumerate(tl, start=1):
-    if i > 5: break
+    color_name, glow_time, colorcode = values
+    if i >12: break
     print(f"{i:03d} " + tl(), end="\n")
 
 print("End")
