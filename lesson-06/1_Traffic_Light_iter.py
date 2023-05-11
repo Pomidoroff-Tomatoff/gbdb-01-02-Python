@@ -18,7 +18,7 @@ import time, itertools
 class TrafficLights:
     ''' Светофор
         -- перебор цвета огней: итератор-класс
-        -- информирмирование о цвете: метод + магический метод __call__
+        -- информирование о цвете: метод + магический метод __call__
     '''
     __RED = "r"                         # Для удобства...
     __YEL = "y"                         # ключи доступа к словарям огней светофора
@@ -28,6 +28,7 @@ class TrafficLights:
     __colorcode_GRN = "\033[32m"     # esc-последовательности управления цветом (текста или фона)
     __colorcode_reset="\033[0m"      # в консоли.
     __colorcode_swap ="\033[7m"
+    # Библиотека цветов
     __colors = {
         __RED: {
             'name': 'RED',
@@ -42,53 +43,46 @@ class TrafficLights:
             'glow_time': 5,
             'colorcode': __colorcode_GRN}
     }
-    # Порядок следования цветов огней светофора
-    __keys = [__RED, __YEL, __GRN, __YEL,]
+    # Список следования цветов:
+    # -- перемешиваем...
+    __color_order_main = [__RED, __GRN,]    # основные цвета
+    __color_order_serv = [__YEL,]           # разделительный цвет
+    __color_order = [color
+        for pair in zip(__color_order_main, itertools.repeat(__color_order_serv[0]))
+        for color in pair]
 
     def __init__(self, start_color: str = __RED):
-        self.current_color_name = ""    # текущие огни запущенного светофора
-        self.current_glow_time = 0      # или значения используемого
-        self.current_colorcode = ""     # итератора класса
+        self.current_color_key = ""     # ключ текущие света работающего экз. светофора
 
-        self.start_color = start_color.upper()
-        if False:
-            pass  # для удобства чтения и красоты...
+        # Проверяем входящий параметр и инициализируем индекс первого цвета в списке следования
+        if not start_color:
+            start_color = self.__RED
 
-        elif self.start_color == self.__RED.upper() or \
-             self.start_color == self.__colors[self.__RED]['name'].upper():
-
-            self.__key_index_start = 0
-
-        elif self.start_color == self.__GRN.upper() or \
-             self.start_color == self.__colors[self.__GRN]['name'].upper():
-
-            self.__key_index_start = -2
-
-        elif self.start_color == self.__YEL.upper() or \
-             self.start_color == self.__colors[self.__YEL]['name'].upper():
-
-            self.__key_index_start = -1
-
+        start_color = start_color.upper()
+        color_keys  = list(map(lambda key: key.upper(), self.__colors.keys()))
+        color_names = list(map(lambda key: self.__colors[key]['name'].upper(), self.__colors.keys()))
+        if start_color in color_keys:
+            self.__key_index_start = color_keys.index(start_color)
+        elif start_color in color_names:
+            self.__key_index_start = color_names.index(start_color)
         else:
-            raise ValueError("Ошибка задания начального цвета огня Светофора.")
+            raise ValueError(f"Ошибка задания начального цвета огня Светофора." + " " + \
+                             f"Используйте {list(color_keys)} или {list(color_names)}.")
 
     def __iter__(self):
-        self.__keys_iter = self.circle(iterable=self.__keys, start=self.__key_index_start)
-        for key in self.__keys_iter:
-            self.current_glow_time =  self.__colors[key]['glow_time']
-            self.current_color_name = self.__colors[key]['name']
-            self.current_colorcode =  self.__colors[key]['colorcode']
-            yield self.current_color_name, \
-                  self.current_glow_time, \
-                  self.current_colorcode
-            time.sleep(self.current_glow_time)
+        for key in self.circle(iterable=self.__color_order, start=self.__key_index_start):
+            self.current_color_key = key
+            yield self.__colors[key]['name'], \
+                  self.__colors[key]['glow_time'], \
+                  self.__colors[key]['colorcode']
+            time.sleep(self.__colors[key]['glow_time'])
 
     def __next__(self):
         ''' не получиться ПОСЛЕ оператора RETURN c командой включения цвета светофора
             установить задержку свечения этого цвета:
             -- после return всё будет проигнорировано!
         '''
-        key = next(self.__keys)
+        key = next(self.__color_order)
         return key     # здесь yield нельзя!
         time.sleep(1)  # не будет выполняться после return
 
@@ -98,9 +92,16 @@ class TrafficLights:
     def __str__(self):
         return self.get_light_info()
 
+    def __set_light_info(self, key: str = ""):
+        self.current_color_key = key
+        return self.__colors[key]['name'], self.__colors[key]['glow_time'], self.__colors[key]['colorcode']
+
     def get_light_info(self):
-        return f"{self.current_colorcode}{self.current_color_name.upper():<10s}{self.__colorcode_reset} " + \
-               f" время свечения: {self.current_glow_time} секунд"
+        key = self.current_color_key
+        return f"{self.__colors[key]['colorcode']}" + \
+               f"{self.__colors[key]['name'].upper():<10s}" + \
+               f"{self.__colorcode_reset} " + \
+               f" время свечения: {self.__colors[key]['glow_time']} секунд"
 
     def circle(self, iterable: list = [], start: int = 0):
         ''' бесконечный цикл по последовательности с указанием начального элемента в первом цикле '''
@@ -129,10 +130,10 @@ class TrafficLights:
 # Поехали!
 # создаём итератор-класс и... огоньки зажигайтесь!
 
-tl = TrafficLights("G")
-for i, values in enumerate(tl, start=1):
-    color_name, glow_time, colorcode = values
-    if i >12: break
+tl = TrafficLights('y')
+for i, color_parameters in enumerate(tl, start=1):
+    color_name, glow_time, colorcode = color_parameters
+    if i > 12: break
     print(f"{i:03d} " + tl(), end="\n")
 
 print("End")
