@@ -1,6 +1,6 @@
 
 # GeekBrains > Python basics: Oleg Gladkiy (https://geekbrains.ru/users/3837199)
-homework_type = "Lesson-6. 1-Traffic-Light as Iterator-class only __iter__"
+homework_type = "Lesson-6. 1-Traffic-Light as Iterator-class with __next__"
 # 1. Создать класс TrafficLight (светофор) и определить у него один атрибут color (цвет)
 #    и метод running (запуск). Атрибут реализовать как приватный.
 #    В рамках метода реализовать переключение светофора в режимы: красный, желтый, зеленый.
@@ -10,11 +10,14 @@ homework_type = "Lesson-6. 1-Traffic-Light as Iterator-class only __iter__"
 #    красный, желтый, зеленый. Проверить работу примера, создав экземпляр и вызвав описанный метод.
 #    Задачу можно усложнить, реализовав проверку порядка режимов,
 #    и при его нарушении выводить соответствующее сообщение и завершать скрипт.
-#
-#    Решение: класс как итератор
-#       -- __iter__ генератор (используется оператор yield)
-#          Внимание! Генерируем временные задержки!
-#       -- не используется __next__, так как в этом магиеском методе невозможно использовать yield
+
+#    Решение: класс как итератор-генератор
+#       __iter__ только интерфейс
+#       __next__ только отдаём параметры, временные задержки не генерируются!!!
+#    Внимание!
+#       Временные задержки, как в часах, не генерируются. Используйте задержку в коде вне экз. класса.
+#       НЕ УЧИТЫВАЕТСЯ ВРЕМЯ!!!
+
 print(homework_type)
 import time, itertools
 
@@ -73,22 +76,23 @@ class TrafficLights:
             raise ValueError(f"Ошибка задания начального цвета огня Светофора." + " " + \
                              f"Используйте {list(color_keys)} или {list(color_names)}.")
 
+        # итератор по ключам в бесконечном цикле
+        self.__keys_iter = self.circle(iterable=self.__color_order, start=self.__key_index_start)
+
     def __iter__(self):
-        for key in self.circle(iterable=self.__color_order, start=self.__key_index_start):
-            self.current_color_key = key
-            yield self.__colors[key]['name'], \
-                  self.__colors[key]['glow_time'], \
-                  self.__colors[key]['colorcode']
-            time.sleep(self.__colors[key]['glow_time'])
+        return self
 
     def __next__(self):
-        ''' не получиться ПОСЛЕ оператора RETURN c командой включения цвета светофора
-            установить задержку свечения этого цвета:
+        ''' генератор параметров для светофоро:
+            -- временная задержка не устанавливается
             -- после return всё будет проигнорировано!
+            -- здесь yield использовать нельзя!
         '''
-        key = next(self.__color_order)
-        return key     # здесь yield нельзя!
-        time.sleep(1)  # не будет выполняться после return
+        key = next(self.__keys_iter)
+        self.current_color_key = key
+        return self.__colors[key]['name'], \
+               self.__colors[key]['glow_time'], \
+               self.__colors[key]['colorcode']
 
     def __call__(self):
         return self.get_light_info()
@@ -139,5 +143,7 @@ for i, color_parameters in enumerate(tl, start=1):
     color_name, glow_time, colorcode = color_parameters
     if i > 12: break
     print(f"{i:03d} " + tl(), end="\n")
+    time.sleep(glow_time)
+
 
 print("End")

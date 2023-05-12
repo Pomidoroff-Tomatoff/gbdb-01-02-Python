@@ -16,11 +16,11 @@ import time
 
 class TrafficLight:
     ''' Светофор '''
-    __con_color_red =    "\033[31m"
-    __con_color_yellow = "\033[33m"
-    __con_color_green =  "\033[32m"
-    __con_color_reset =  "\033[0m"
-    __con_color_swap =   "\033[7m"
+    __con_color_red =    ""  # "\033[31m"
+    __con_color_yellow = ""  # "\033[33m"
+    __con_color_green =  ""  # "\033[32m"
+    __con_color_reset =  ""  # "\033[0m"
+    __con_color_swap =   ""  # "\033[7m"
     __color_list = [('red', 7, __con_color_red), ('yellow', 2, __con_color_yellow), ('green', 5, __con_color_green)]
 
     # Наверное, нужно два объекта:
