@@ -140,7 +140,7 @@ def main():
             INSTANCE: None,
             ERROR_MSG: None,
         }, {
-            DATE_STRING: "10-00-2023",
+            DATE_STRING: "23-23-2023",
             TEST_PLAN: "ОШИБКИ ДИАПАЗОНА: месяц (__validate_digital)",
             INSTANCE: None,
             ERROR_MSG: None,
@@ -176,7 +176,7 @@ def main():
         for err in test[ERROR_MSG]:
             print(
               f"   ERROR: {err}")
-        print(f"     out: \'{str(instance)}\', \n"
+        print(f"     out: \'{str(instance)}\' \n"
               f"list out: {instance.get_date_digits()} \n"
               f"instance: id={id(instance)} \n"
               )
