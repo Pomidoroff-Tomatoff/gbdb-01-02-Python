@@ -23,84 +23,171 @@ homework_type = "Lesson-8. 1_date"
 print(homework_type)
 
 
-class Date:
+class Singleton:
+    ''' Классический (?) Singleton -- муть какая-то, но интересная '''
+    def __new__(cls, *args, **kwargs):
+        ''' * создаём Экземпляр, если он первый;
+            * создаём Атрибут класса с адресом этого экземпляра,
+              чтобы при последующих обращениях возвращать адрес этого экземпляра,
+              вместо создания нового.
+            * cls.instance: адрес единственного экземпляра
+        '''
+        if not hasattr(cls, 'instance'):            # ? -- атрибут класса для ссылки на экземпляр
+            cls.instance = super().__new__(cls)     # Экземпляр! ...аргументы экз. не передаём...
+        return cls.instance                         # Возвращаем ссылку на экз. всегда
+
+class Date(Singleton):
     ''' Принимаем дату в виде строки формата «день-месяц-год»
         и конвертируем в цифровые значения даты
-        sdate: дата в виде строки
+        __date_digits: собираем элементы даты
+        __error_messages: собираем ошибки
     '''
-
     __date_digits = []
-
-    def __new__(cls, *args, **kwargs):
-        ''' Классический экземпляр Singleton '''
-        if not hasattr(cls, 'instance'):
-            # создаём атрибут класса для ссылки на экземпляр
-            # ...здесь в __new__ доп. аргументы НЕ указываются...
-            cls.instance = super().__new__(cls)
-
-        return cls.instance  # возвращаем ссылку на экз.
+    __error_messages = []
 
     def __init__(self, sdate: str = ""):
+        ''' Преобразованием входящую строку в цифровые данные
+            и записываем их в переменную класса __date_digits
+        '''
         self.__make_digital(sdate)
 
     @classmethod
     def __make_digital(cls, sdate):
-        ''' извлечение числовых данные из строки
-            формата dd-mm-yy '''
-        try:
-            ddate = [int(i) for i in sdate.strip().split("-") if i]  # исключаем пустые элементы
-        except Exception as err:
-            print(f"Ошибка преобразования в целые числа элементов даты \"{sdate}\".", err)
-        else:
-            if cls.__validate_digital(ddate):
+        ''' Извлечение числовых данные из строки формата DD-MM-YYYY '''
+        cls.__error_messages = []  # self.__class__.__error_messages = []  # это в некласных методах
+        ddate = []
+        status = True
+        elements = [i for i in sdate.strip().split("-") if i and not i.isspace()]  # ...без пустышек
+        for i in elements:
+            try:
+                value = int(i)
+            except Exception as err:
+                cls.__error_messages.append(f"Ошибка преобразования в целое: {err}.")
+                status = False
+            else:
+                ddate.append(value)  # собираем элементы даты в список
+
+        if status:  # Ошибки были?
+            validate_error_messages = cls.__validate_digital(ddate)
+            if validate_error_messages:
+                cls.__error_messages.extend(validate_error_messages)
+                status = False
+            else:
                 cls.__date_digits = ddate
-        return cls.__date_digits
+
+        return status
 
     @staticmethod
     def __validate_digital(ddate: list =[]):
         ''' проверка компонентов даты '''
+        error_messages = []
         rcode = True
         if len(ddate) < 3:
             print(f"Ошибка: нет данных")
             rcode = False
-        if ddate[0] > 31:
-            print(f"Ошибка: день месяца {ddate[0]=}")
-            rcode = False
-        if ddate[1] > 12:
-            print(f"Ошибка: месяц {ddate[1]=}")
-            rcode = False
-        if ddate[2] < 1900:
-            print(f"Ошибка: год  {ddate[2]=}")
-            rcode = False
-        return rcode
+        else:
+            if (day := ddate[0]) < 1 or day > 31:
+                error_messages.append(f"Ошибка валидации: день = {day} не входит в допустимый диапазон")
+                # print(f"Ошибка: день {day=} не входит в допустимый диапазон")
+                rcode = False
+            if (mon := ddate[1]) < 1 or mon > 12:
+                error_messages.append(f"Ошибка валидации: месяц = {mon} не входит в допустимый диапазон")
+                # print(f"Ошибка: месяц {mon=} не входит в допустимый диапазон")
+                rcode = False
+            if (year := ddate[2]) < 1900:
+                error_messages.append(f"Ошибка валидации: год = {year} не входит в допустимый диапазон")
+                # print(f"Ошибка: год {year=} не входит в допустимый диапазон")
+                rcode = False
+        return error_messages
 
     @classmethod
     def get_date_digits(cls):
         return cls.__date_digits
 
+    @classmethod
+    def get_err_msg(cls):
+        return cls.__error_messages
+
     def __str__(self):
+        ''' ...Усложняем, чтобы без ошибки вывести пустой список '''
         s = [f"{i:02d}" for i in self.get_date_digits()]
         s = "-".join(s) if len(s) > 0 else ""
         return s
+    pass  # Date end
 
 
-# ПРОВЕРКИ
+# Поехали
 
-# Ошибки задания чисел даты -- буквы вместо цифр: "S", "O", "З"
-print("\nОШИБКИ цифр:")
-d1 = Date("1S-O5-202З")
-print(f"{d1 = } -> {str(d1) = }, list = {d1.get_date_digits()}")
 
-# Ошибка задания числа месяца:
-d2 = Date("32-05-2023")
-print(f"{d2 = } -> {str(d2) = }, list = {d2.get_date_digits()}")
+def main():
+    """ ПРОВЕРКИ (тестирование класса Date)"""
 
-# ВЕРНЫЕ значения
-print("\nОШИБКИ формата; попытка создания разных объектов...")
-d3 = Date("01--05-2018")
-print(f"{d3 = } -> {str(d3) = }, list = {d3.get_date_digits()}")
-print("Создаём d4 с новой датой, а изменения проверяем в d3:")
-d4 = Date("21-03-2023")
-print(f"{d4 = } <- {str(d4) = }, list = {d3.get_date_digits()}")
+    # константы для удобства
+    DATE_STRING = "date_string"
+    TEST_PLAN = "test_plan"
+    ERROR_MSG = "error_message"
+    INSTANCE = None
 
-print("End")
+    tests = [
+        {
+            DATE_STRING: "1S-O5-202З",
+            TEST_PLAN: "ОШИБКИ СИМВОЛЬНЫЕ: буквы вместо цифр 5--\"S\", 0--\"O\", 3--\"З\" (преобразование в целое)",
+            INSTANCE: None,
+            ERROR_MSG: None,
+        }, {
+            DATE_STRING: "32-01-2000",
+            TEST_PLAN: "ОШИБКИ ДИАПАЗОНА: число дня месяца (__validate_digital)",
+            INSTANCE: None,
+            ERROR_MSG: None,
+        }, {
+            DATE_STRING: "10-00-2023",
+            TEST_PLAN: "ОШИБКИ ДИАПАЗОНА: месяц (__validate_digital)",
+            INSTANCE: None,
+            ERROR_MSG: None,
+        }, {
+            DATE_STRING: "00-00-0000",
+            TEST_PLAN: "ОШИБКИ ДИАПАЗОНА: число месяца, месяц и год (__validate_digital)",
+            INSTANCE: None,
+            ERROR_MSG: None,
+        }, {
+            DATE_STRING: "10-10-1000",
+            TEST_PLAN: "ОШИБКИ ДИАПАЗОНА: год (__validate_digital)",
+            INSTANCE: None,
+            ERROR_MSG: None,
+        }, {
+            DATE_STRING: "10--01-  -2020",
+            TEST_PLAN: "ОШИБКИ ФОРМАТА: лишние дефис и пробел (__make_digital)",
+            INSTANCE: None,
+            ERROR_MSG: None,
+        }, {
+            DATE_STRING: "18-05-2023",
+            TEST_PLAN: "ТЕКУЩАЯ ДАТА (без ошибок)",
+            INSTANCE: None,
+            ERROR_MSG: None,
+        }
+    ]  # end tests
+
+    print(f"\nCREATE INSTANCE of class Date & TEST\n")
+    for i, test in enumerate(tests, start=1):
+        test[INSTANCE] = instance = Date(test[DATE_STRING])
+        test[ERROR_MSG] = instance.get_err_msg()
+        print(f"{i:03d}-Test: {test[TEST_PLAN]}\n"
+              f"      in: \'{test[DATE_STRING]}\'")
+        for err in test[ERROR_MSG]:
+            print(
+              f"   ERROR: {err}")
+        print(f"     out: \'{str(instance)}\', \n"
+              f"list out: {instance.get_date_digits()} \n"
+              f"instance: id={id(instance)} \n"
+              )
+
+    print(f"INSTANCE LIST FROM TEST\n")
+    for i, test in enumerate(tests, start=1):
+        print(f"{i:0>2d}-address: {test[INSTANCE]=}, id = {id(test[INSTANCE])}\n"
+              f"      date: {test[INSTANCE]}"
+              )
+
+
+if __name__ == "__main__":
+    main()
+    print("End")
