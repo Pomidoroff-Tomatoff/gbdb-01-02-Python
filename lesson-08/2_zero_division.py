@@ -33,6 +33,7 @@ class ApplicationZeroDivisionError(Exception):
 
 
 class ApplicationDigitalError(Exception):
+    ''' Исключение: введена строка символов, а не цифры '''
     def __init__(self, message: str = ""):
         self.message = f"вы ввели строку, а не число / {message}"
 
@@ -41,7 +42,7 @@ class ApplicationDigitalError(Exception):
 
 
 class DivisionCalc:
-    ''' калькулятор с использованием прикладного исключения '''
+    ''' Калькулятор с использованием прикладного исключения '''
 
     @staticmethod
     def get_value(message: str = ""):
@@ -51,7 +52,13 @@ class DivisionCalc:
     def runner(self):
         print("КАЛЬКУЛЯТОР: введите числа или просто Enter для завершения")
         while True:
+            # ВНЕШНИЙ перехват
+            # -- Перехват прикладных исключений
             try:
+                # Внутренний перехват
+                # -- Перехват встроенных исключений и подмена их прикладными
+                # -- Этот блок можно организовать в виде функции (метода), генерирующей прикладные исключения)
+                #    (не сделано здесь для наглядности)
                 try:
                     if (a := self.get_value("  введите числитель: ")) is None: break
                     if (b := self.get_value("  введите делитель:  ")) is None: break
@@ -72,9 +79,9 @@ class DivisionCalc:
                 print(appmsg)
             except Exception as err:
                 print(f"неизвестная ошибка: {err}")
-            else:
+            else:  # успешно!
                 print(f"Результат деления: {y}")
-            pass  # Внешний Try-except
+            pass   # Внешний Try-except
 
     def __call__(self, *args, **kwargs):
         self.runner()
