@@ -32,34 +32,55 @@ class ApplicationZeroDivisionError(Exception):
         return f"Неверно задан делитель, результат вычислить не получиться: {self.message}"
 
 
-def get_value(message: str = ""):
-    string = input(message)
-    if string and not string.isspace():
-        return float(string)
+class ApplicationDigitalError(Exception):
+    def __init__(self, message: str = ""):
+        self.message = f"вы ввели строку, а не число / {message}"
+
+    def __str__(self):
+        return f"Ошибка: {self.message}"
+
+
+class DivisionCalc:
+    ''' калькулятор с использованием прикладного исключения '''
+
+    @staticmethod
+    def get_value(message: str = ""):
+        if (string := input(message)) and not string.isspace():
+            return float(string)
+
+    def runner(self):
+        print("КАЛЬКУЛЯТОР: введите числа или просто Enter для завершения")
+        while True:
+            try:
+                try:
+                    if (a := self.get_value("  введите числитель: ")) is None: break
+                    if (b := self.get_value("  введите делитель:  ")) is None: break
+                    y = a / b
+                except ZeroDivisionError as errmsg:
+                    # Перехватываем встроенные исключение и Подменяем его на наше прикладное, а так же:
+                    # * подавляем встроенную цепочку трассировки
+                    # * используем встроенное сообщение, передавая его
+                    #   как аргумент прикладному экземпляру исключения.
+                    raise ApplicationZeroDivisionError(errmsg) from None
+                except ValueError as errmsg:
+                    raise ApplicationDigitalError(errmsg) from None
+                pass  # внутренний Try-except
+
+            except ApplicationZeroDivisionError as appmsg:
+                print(appmsg)
+            except ApplicationDigitalError as appmsg:
+                print(appmsg)
+            except Exception as err:
+                print(f"неизвестная ошибка: {err}")
+            else:
+                print(f"Результат деления: {y}")
+            pass  # Внешний Try-except
+
+    def __call__(self, *args, **kwargs):
+        self.runner()
 
 
 # Поехали
-print("Введите числа или просто Enter для завершения")
-while True:
-    try:
-        if (a := get_value("  введите числитель: ")) is None: break
-        if (b := get_value("  введите делитель:  ")) is None: break
-
-        try:
-            y = a / b
-        except ZeroDivisionError as errmsg:
-            # Подменяем встроенное исключение на наше прикладное, а так же:
-            # * подавляем встроенную цепочку трассировки
-            # * используем встроенное сообщение, передавая его
-            #   как аргумент прикладному экземпляру исключения.
-            raise ApplicationZeroDivisionError(errmsg) from None
-
-    except ApplicationZeroDivisionError as appmsg:
-        print(appmsg)
-    except Exception as err:
-        print(f"неизвестная ошибка: {err}")
-    else:
-        print(f"Результат деления: {y}")
-
-
-print("End")
+if __name__ == "__main__":
+    DivisionCalc()()
+    print("End")
