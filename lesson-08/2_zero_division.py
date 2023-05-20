@@ -33,9 +33,9 @@ class ApplicationZeroDivisionError(Exception):
 
 
 class ApplicationDigitalError(Exception):
-    ''' Исключение: введена строка символов, а не цифры '''
+    ''' Прикладное ИСКЛЮЧЕНИЕ: введены буквы, а не цифры '''
     def __init__(self, message: str = ""):
-        self.message = f"вы ввели строку, а не число / {message}"
+        self.message = f"введены буквы, а не число / {message}"
 
     def __str__(self):
         return f"Ошибка: {self.message}"
@@ -45,23 +45,29 @@ class DivisionCalc:
     ''' Калькулятор с использованием прикладного исключения '''
 
     @staticmethod
-    def get_value(message: str = ""):
-        if (string := input(message)) and not string.isspace():
-            return float(string)
+    def get_value(prompt: str = ""):
+        if (string := input(prompt)) and not string.isspace() and not string.upper() == "STOP":
+            try:
+                return float(string)
+            except ValueError as errmsg:
+                raise ApplicationDigitalError(errmsg) from None
 
     def runner(self):
-        print("КАЛЬКУЛЯТОР: введите числа или просто Enter для завершения")
+        print("КАЛЬКУЛЯТОР: введите числа для вычисления деления (\"stop\" или просто Enter для завершения)")
         while True:
-            # ВНЕШНИЙ перехват
-            # -- Перехват прикладных исключений
             try:
-                # Внутренний перехват
-                # -- Перехват встроенных исключений и подмена их прикладными
-                # -- Этот блок можно организовать в виде функции (метода), генерирующей прикладные исключения)
-                #    (не сделано здесь для наглядности)
+                # ВНЕШНИЙ перехват
+                # -- Перехват прикладных исключений
+
+                if (a := self.get_value("  введите числитель: ")) is None: break
+                if (b := self.get_value("  введите делитель:  ")) is None: break
+
                 try:
-                    if (a := self.get_value("  введите числитель: ")) is None: break
-                    if (b := self.get_value("  введите делитель:  ")) is None: break
+                    # Внутренний перехват
+                    # -- Перехват встроенных исключений и подмена их прикладными
+                    # -- Этот блок можно организовать в виде функции (метода),
+                    #    выполняющей рабочий функционал и генерирующей прикладные исключения.
+                    #    Но здесь это не сделано -- именно для наглядности.
                     y = a / b
                 except ZeroDivisionError as errmsg:
                     # Перехватываем встроенные исключение и Подменяем его на наше прикладное, а так же:
@@ -69,13 +75,11 @@ class DivisionCalc:
                     # * используем встроенное сообщение, передавая его
                     #   как аргумент прикладному экземпляру исключения.
                     raise ApplicationZeroDivisionError(errmsg) from None
-                except ValueError as errmsg:
-                    raise ApplicationDigitalError(errmsg) from None
                 pass  # внутренний Try-except
 
-            except ApplicationZeroDivisionError as appmsg:
+            except ApplicationZeroDivisionError as appmsg:  # деление на ноль
                 print(appmsg)
-            except ApplicationDigitalError as appmsg:
+            except ApplicationDigitalError as appmsg:       # буквы вместо чисел
                 print(appmsg)
             except Exception as err:
                 print(f"неизвестная ошибка: {err}")
