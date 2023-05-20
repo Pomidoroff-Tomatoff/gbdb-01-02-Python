@@ -1,5 +1,5 @@
 # GeekBrains > Python basics: Oleg Gladkiy (https://geekbrains.ru/users/3837199)
-homework_type = "Lesson-8. 2_values"
+homework_type = "Lesson-8. 3_values"
 '''
   3. Создайте собственный класс-исключение, который должен проверять содержимое списка 
      на наличие только чисел. Проверить работу исключения на реальном примере. 
