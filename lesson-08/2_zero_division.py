@@ -34,6 +34,7 @@ class ApplicationZeroDivisionError(Exception):
 
 class ApplicationDigitalError(Exception):
     ''' Прикладное ИСКЛЮЧЕНИЕ: введены буквы, а не цифры '''
+
     def __init__(self, message: str = ""):
         self.message = f"введены буквы, а не число / {message}"
 
@@ -44,9 +45,16 @@ class ApplicationDigitalError(Exception):
 class DivisionCalc:
     ''' Калькулятор с использованием прикладного исключения '''
 
+    countdown = 5  # максимальное количество попыток вычисления (даже не успешных)
+
+    @classmethod
+    def go(cls):
+        cls.countdown -= 1
+        return cls.countdown + 1
+
     @staticmethod
     def get_value(prompt: str = ""):
-        if (string := input(prompt)) and not string.isspace() and not string.upper() == "STOP":
+        if (string := input(prompt)) and not string.isspace() and not (string.upper() == "STOP" or string.upper() == "ЫЕЩЗ"):
             try:
                 return float(string)
             except ValueError as errmsg:
@@ -54,7 +62,7 @@ class DivisionCalc:
 
     def runner(self):
         print("КАЛЬКУЛЯТОР: введите числа для вычисления деления (\"stop\" или просто Enter для завершения)")
-        while True:
+        while self.go():
             try:
                 # ВНЕШНИЙ перехват
                 # -- Перехват прикладных исключений
@@ -81,8 +89,8 @@ class DivisionCalc:
                 print(appmsg)
             except ApplicationDigitalError as appmsg:       # буквы вместо чисел
                 print(appmsg)
-            except Exception as err:
-                print(f"неизвестная ошибка: {err}")
+            except Exception as err:                        # другие исключения
+                print(f"Обратитесь к администратору. Ошибка: {err}")
             else:  # успешно!
                 print(f"Результат деления: {y}")
             pass   # Внешний Try-except
