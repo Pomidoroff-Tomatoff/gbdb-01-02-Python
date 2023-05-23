@@ -61,6 +61,7 @@ homework_type = "Lesson-8. 4-5-6_store"
             2. Количество техники не подсчитывается...
 '''
 print(homework_type)
+import abc
 
 
 class Const:
@@ -117,20 +118,7 @@ class AppSerialError(Exception):
         return f"{self.message}"
 
 
-class Reference(Singleton):
-    ''' EquipmentTypeReference: Справочник типов оргтехники '''
-    equipment_type = {
-        Const.TYPE_PRINTER: 10,
-        Const.TYPE_SCANNER: 20,
-        Const.TYPE_COPIER: 30,
-    }
-
-    @classmethod
-    def __call__(cls, name: str = ""):
-        return cls.equipment_type[name]
-
-
-class Equipment:
+class Equipment(abc.ABC):
     ''' Оргтехника -- базовый класс '''
 
     def __init__(self, equipment_type: str = "", serial: str = ""):
@@ -151,6 +139,7 @@ class Equipment:
     def __call__(self):
         return self.__item
 
+    @abc.abstractmethod
     def __str__(self):
         return (f"TYPE: {self.__item[Const.TYPE]:<10s}  " 
                 f"NAME: {self.__item[Const.NAME]:<15s}  "
@@ -217,7 +206,6 @@ class Store(Singleton):
             print(f"{i:03d}  {item}")
 
 
-
 class Printer(Equipment):
     ''' Тип оборудования: PRINTER '''
 
@@ -247,7 +235,7 @@ class Scanner(Equipment):
 
 
 class Copier(Equipment):
-    ''' Тип оборудования: копировальный аппарат '''
+    ''' Тип оборудования: КОПИРОВАЛЬНЫЙ АППАРАТ '''
 
     def __init__(self, name: str = "", serial: str = "", speed: int = 0):
         super().__init__(equipment_type=Const.TYPE_COPIER, serial=serial)
