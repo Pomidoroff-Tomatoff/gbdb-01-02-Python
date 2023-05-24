@@ -1,5 +1,5 @@
 # GeekBrains > Python basics: Oleg Gladkiy (https://geekbrains.ru/users/3837199)
-homework_type = "Lesson-8. 4-5-6_store"
+homework_type = "Lesson-8. 4-5-6_store. v.015"
 '''
     4. Начните работу над проектом «Склад оргтехники». 
         А.  Создайте класс, описывающий склад. 
@@ -56,9 +56,17 @@ homework_type = "Lesson-8. 4-5-6_store"
                с доступом к объекту по серийнику
                
         Примечание:
-            1. Может быть корректнрее было бы организовать не склад, а базу активов оргтехники, 
+            1. Данные организованы в виде словаря в объекте единице оборудования, 
+               а не отдельных атрибутов.
+            2. Общая база данных размещена в классе-синглтоне Store в виде списка объектов оборудования, 
+               со словарём параметров в каждом таком объекте.
+            3. Для техники в качестве базового используется абстрактный класс.
+            4. Валидация вручную; __setattr__ не используется -- не понятно, как это сделать для словаря.
+            5. Может быть корректнее было бы организовать не склад, а базу активов оргтехники, 
                с возможным расположением "склад"?...
-            2. Количество техники не подсчитывается...
+            6. Количество техники __len__ подсчитывается только общее -- без учёта выборки 
+               (например, по расположению).
+            7. Сложная получилась конструкция. Оценить её жизнеспособность сейчас так же сложно...
 '''
 print(homework_type)
 import abc
@@ -118,33 +126,85 @@ class AppSerialError(Exception):
         return f"{self.message}"
 
 
-class Equipment(abc.ABC):
-    ''' Оргтехника -- базовый класс '''
+class AppEquipmentError(Exception):
+    ''' Прикладное исключение: неверный тип объекта оборудования '''
 
-    def __init__(self, equipment_type: str = "", serial: str = ""):
+    def __init__(self, message: str = ""):
+        self.message = f"ОШИБКА класса (типа) -- объект не соответствует классу (типу) Equipment: {message}"
+
+    def __str__(self):
+        return f"{self.message}"
+
+
+class AppValueError(Exception):
+    ''' Прикладное исключение: неверное значение параметра оборудования '''
+
+    def __init__(self, message: str = ""):
+        self.message = f"ОШИБКА параметра оборудования: {message}"
+
+    def __str__(self):
+        return f"{self.message}"
+
+
+class Equipment(abc.ABC):
+    ''' Оргтехника -- базовый абстрактный класс,
+        не может иметь собственных объектов-экземпляров
+        (совместно с абстрактными методами этого абс. класса)
+    '''
+
+    def __init__(self, equipment_type: str = "", name: str = "", serial: str = ""):
+        ''' Инициализируем атрибут(ы) экземпляра '''
+        # Основные проверки
         if not serial or serial.isspace():
             raise AppSerialError("не задан")
         if not isinstance(serial, str):
             raise AppSerialError("тип не соответствует строковому")
+
+        # Атрибут (приватный) экземпляра -- словарь данных...
         self.__item = {
             Const.TYPE: equipment_type,
-            Const.NAME: None,
-            Const.SERIAL: serial.upper(),
+            Const.NAME: self.valid_str(name),
+            Const.SERIAL: self.valid_str(serial).upper(),
             Const.LOCATION: Const.LOCATION_STORE,
         }
 
-    def _get_item(self):
+    @staticmethod
+    def valid_str(s: str = ""):
+        if not s and not s.isspace():
+            AppValueError(f"Пустое значение")
+        if not isinstance(s, str):
+            AppValueError(f"Недопустимая строка, тип {type(s)}")
+        s = s.strip()
+        if len(s) > 20:
+            AppValueError(f"Слишком длинное значение {len(s)}")
+        return s
+
+    def get_info(self):
+        ''' Доступ к приватным атрибутам '''
         return self.__item
+
+    @property
+    def get_serial(self):
+        ''' Доступ к серийнику '''
+        return self.__item[Const.SERIAL]
+
+    @property
+    def get_location(self):
+        ''' Доступ к размещению '''
+        return self.__item[Const.LOCATION]
 
     def __call__(self):
         return self.__item
 
     @abc.abstractmethod
     def __str__(self):
+        ''' Преобразование экземпляра в строку
+            абстрактный метод: требует перегрузки у наследника
+        '''
         return (f"TYPE: {self.__item[Const.TYPE]:<10s}  " 
                 f"NAME: {self.__item[Const.NAME]:<15s}  "
                 f"SN: {self.__item[Const.SERIAL]:<15s}  "
-                f"LOC: {self.__item[Const.LOCATION]:<13s}")  # .strip()
+                f"LOC: {self.__item[Const.LOCATION]:<13s}")
 
 
 class Store(Singleton):
@@ -155,9 +215,12 @@ class Store(Singleton):
     @classmethod
     def set_item(cls, item: Equipment = None):
         ''' Приём техники на склад '''
-        if cls.validation_serial(candidate=item):
-            cls.__items.append(item)
-            return True
+        if isinstance(item, Equipment):
+            if cls.validation_serial(candidate=item):
+                cls.__items.append(item)
+                return True
+        else:
+            raise AppEquipmentError(type(item))
 
     @classmethod
     def get_item(cls, serial: str = None):
@@ -198,22 +261,43 @@ class Store(Singleton):
             return True  # return и raise -- выходы из метода...
 
     @classmethod
-    def __call__(cls, title: str = ""):
-        ''' Список всего оборудования склада '''
-        if title:                   # заголовок, если нужен
-            print(title)
-        for i, item in enumerate(cls.__items, start=1):
-            print(f"{i:03d}  {item}")
+    def __call__(cls, location: str = ""):
+        ''' Список оборудования по его размещению '''
+        if location and not location.isspace() and location is not None:
+            i = 0
+            for item in cls.__items:
+                if item.get_location == location:
+                    i += 1
+                    print(f"{i:03d}  {item}")
+        else:
+            for i, item in enumerate(cls.__items, start=1):
+                print(f"{i:03d}  {item}")
+
+
+    @classmethod
+    def __len__(cls):
+        return len(cls.__items)
+
+    def __add__(self, other):
+        self.set_item(item=other)
+        return self
+
+    def __radd__(self, other):
+        self.set_item(item=other)
+        return self
+
+    def __iadd__(self, other):
+        self.set_item(item=other)
+        return self
 
 
 class Printer(Equipment):
     ''' Тип оборудования: PRINTER '''
 
     def __init__(self, name: str = "", serial: str = "", dpi: int = 0):
-        super().__init__(equipment_type=Const.TYPE_PRINTER, serial=serial)
-        self.__item = self._get_item()        # получаем закрытый словарь родителя
-        self.__item[Const.NAME] = name
-        self.__item[Const.PRINTER_DPI] = dpi  # разрешение -- спец-парам. принтера
+        super().__init__(equipment_type=Const.TYPE_PRINTER, name=name, serial=serial)
+        self.__item = self.get_info()         # получаем приватный словарь родителя
+        self.__item[Const.PRINTER_DPI] = dpi  # печатное разрешение (спец-парам. принтера)
 
     def __str__(self):
         ''' Перегрузка родительского метода: добавляем DPI  '''
@@ -224,10 +308,9 @@ class Scanner(Equipment):
     ''' Тип оборудования: СКАНЕР '''
 
     def __init__(self, name: str = "", serial: str = "", dmax: float = 0):
-        super().__init__(equipment_type=Const.TYPE_SCANNER, serial=serial)
-        self.__item = self._get_item()          # получаем закрытый словарь родителя
-        self.__item[Const.NAME] = name
-        self.__item[Const.SCANNER_DMAX] = dmax  # разрешение -- спец-парам. принтера
+        super().__init__(equipment_type=Const.TYPE_SCANNER, name=name, serial=serial)
+        self.__item = self.get_info()           # получаем приватный словарь родителя
+        self.__item[Const.SCANNER_DMAX] = dmax  # оптическая плотность (спец-парам.)
 
     def __str__(self):
         ''' Перегрузка родительского метода: добавляем оптическую плотность '''
@@ -238,10 +321,9 @@ class Copier(Equipment):
     ''' Тип оборудования: КОПИРОВАЛЬНЫЙ АППАРАТ '''
 
     def __init__(self, name: str = "", serial: str = "", speed: int = 0):
-        super().__init__(equipment_type=Const.TYPE_COPIER, serial=serial)
-        self.__item = self._get_item()           # получаем закрытый словарь родителя
-        self.__item[Const.NAME] = name
-        self.__item[Const.COPIER_SPEED] = speed  # разрешение -- спец-парам. копира
+        super().__init__(equipment_type=Const.TYPE_COPIER, name=name, serial=serial)
+        self.__item = self.get_info()            # получаем приватный словарь родителя
+        self.__item[Const.COPIER_SPEED] = speed  # скорость (спец-парам. копира)
 
     def __str__(self):
         ''' Перегрузка родительского метода: добавляем скорость копирования '''
@@ -261,13 +343,15 @@ def main():
     c2 = Copier(name="Canon Proff", serial="M3-0037PP19", speed=12)
 
     # Добавление оборудования на склад
-    for item in [p1, p1, p2, s1, s2, c1, c2]:  # p1 пытаемся добавить 2-ды
+    for item in [p1, p1, p2, s1, s2, c1, c2, "ошибочно задан неверный тип объекта"]:  # p1 пытаемся добавить дважды и строку
         try:
-            store.set_item(item=item)
+            # store.set_item(item=item)
+            # store += item
+            store = item + store
         except Exception as err:
             print(f"{err}")
         else:
-            print(f"Успешно добавлено: \n{item}")
+            print(f"Успешно добавлено: \n{store.get_item(serial=item.get_serial)}")
 
     # Определяем размещение оборудования
     # проверяем
@@ -277,12 +361,22 @@ def main():
     print(f"-- Расположение:      {store.get_location(serial='001AFM27-40')}")
     print(f"-- Новое размещение:  {store.set_location(serial='001AFM27-40', location=Const.LOCATION_RECEPTION)}")
     print(f"-- Распол. проверка:  {store.get_location(serial='001AFM27-40')}")
-    print(p1)
+    print(f"Переменная p1 = {p1}")
+
+    print("Удаление переменных-ссылок на объекты: ")
+    print("проверим, остались ли объекты на складе после удаления переменны?")
+    del p1, p2, s1, s2, c1, c2
+    try:
+        print(p1)  # попытка обратиться к удалённой переменной
+    except Exception as err:
+        print(f"ПЕРЕМЕННАЯ p1 УДАЛЕНА: {err}")
+
     print("- "*46)
     print("Изменяем размещение оборудования: раздаём по отделам...")
 
     store.set_location(serial='M4-0037PP18', location=Const.LOCATION_DEPARTMENT_LEGAL)
     try:
+        print("Попытка изменить размещение объекта с неверным SN: M3-0037PP19---1")
         store.set_location(serial='M3-0037PP19---1', location=Const.LOCATION_DEPARTMENT_SALE)
     except Exception as err:
         print(err)
@@ -290,7 +384,11 @@ def main():
     store.set_location(serial='18-25RY-10M', location=Const.LOCATION_DEPARTMENT_SALE)
 
     print("- "*46)
-    store("Склад, список всего оборудования компании:")
+    print(f"Склад, список всего оборудования компании:")
+    store()
+    print(f"ВСЕГО: {len(store)}")
+    print(f"Cписок оборудования отдела {Const.LOCATION_DEPARTMENT_SALE}:")
+    store(location=Const.LOCATION_DEPARTMENT_SALE)
 
 
 # Поехали
