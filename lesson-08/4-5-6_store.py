@@ -1,5 +1,5 @@
 # GeekBrains > Python basics: Oleg Gladkiy (https://geekbrains.ru/users/3837199)
-homework_type = "Lesson-8. 4-5-6_store. v.015"
+homework_type = "Lesson-8. 4-5-6_store. v.020"
 '''
     4. Начните работу над проектом «Склад оргтехники». 
         А.  Создайте класс, описывающий склад. 
@@ -95,15 +95,15 @@ class Singleton:
         все остальные объекты -- ссылки на первоначальный объект
     '''
     def __new__(cls, *args, **kwargs):
-        ''' * создаём Экземпляр, если он первый;
-            * создаём Атрибут класса с адресом этого экземпляра,
+        ''' * создаём первый Экземпляр. Только если он первый;
+            * создаём Атрибут класса с адресом этого 1-ого экземпляра,
               чтобы при последующих обращениях возвращать адрес этого экземпляра,
               вместо создания нового;
             * cls.instance: адрес единственного экземпляра
         '''
         if not hasattr(cls, 'instance'):            # ? -- атрибут класса для ссылки на экземпляр
             cls.instance = super().__new__(cls)     # Экземпляр! ...аргументы экз. не передаём...
-        return cls.instance                         # Возвращаем ссылку на экз. всегда
+        return cls.instance                         # Возвращаем ссылку на 1-ый экз. Всегда!
 
 
 class AppDuplicateError(Exception):
@@ -154,22 +154,16 @@ class Equipment(abc.ABC):
 
     def __init__(self, equipment_type: str = "", name: str = "", serial: str = ""):
         ''' Инициализируем атрибут(ы) экземпляра '''
-        # Основные проверки
-        if not serial or serial.isspace():
-            raise AppSerialError("не задан")
-        if not isinstance(serial, str):
-            raise AppSerialError("тип не соответствует строковому")
-
         # Атрибут (приватный) экземпляра -- словарь данных...
         self.__item = {
             Const.TYPE: equipment_type,
-            Const.NAME: self.valid_str(name),
-            Const.SERIAL: self.valid_str(serial).upper(),
+            Const.NAME: self.valid_name(name),
+            Const.SERIAL: self.valid_serial(serial),
             Const.LOCATION: Const.LOCATION_STORE,
         }
 
     @staticmethod
-    def valid_str(s: str = ""):
+    def valid_name(s: str = ""):
         if not s and not s.isspace():
             AppValueError(f"Пустое значение")
         if not isinstance(s, str):
@@ -178,6 +172,17 @@ class Equipment(abc.ABC):
         if len(s) > 20:
             AppValueError(f"Слишком длинное значение {len(s)}")
         return s
+
+    @staticmethod
+    def valid_serial(s: str = ""):
+        if not s and not s.isspace():
+            raise AppSerialError("не задан")
+        if not isinstance(s, str):
+            raise AppSerialError(f"тип не соответствует строковому {type(s)}")
+        s = s.strip()
+        if len(s) > 20:
+            raise AppSerialError(f"Слишком длинное значение {len(s)}")
+        return s.upper()
 
     def get_info(self):
         ''' Доступ к приватным атрибутам '''
@@ -273,6 +278,9 @@ class Store(Singleton):
             for i, item in enumerate(cls.__items, start=1):
                 print(f"{i:03d}  {item}")
 
+    @classmethod
+    def __iter__(cls):
+        return iter(cls.__items)
 
     @classmethod
     def __len__(cls):
@@ -340,36 +348,33 @@ def main():
     s1 = Scanner(name="HP-2415-10", serial="18-25RY-10M", dmax=1.5)
     s2 = Scanner(name="Agfa-F4", serial="F4-4067KRX-8", dmax=2.0)
     c1 = Copier(name="Canon Office", serial="M4-0037PP18", speed=3)
-    c2 = Copier(name="Canon Proff", serial="M3-0037PP19", speed=12)
+    c2 = Copier(name="Canon Pro", serial="M3-0037PP19", speed=12)
 
     # Добавление оборудования на склад
-    for item in [p1, p1, p2, s1, s2, c1, c2, "ошибочно задан неверный тип объекта"]:  # p1 пытаемся добавить дважды и строку
+    # -- p1 пытаемся добавить дважды (ошибка ключевого поля SN)
+    # -- пытаемся добавить строку вместо объекта оборудования (ошибка типа)
+    print("- "*46)
+    print("Добавление оборудования на склад")
+    for item in [p1, p1, p2, s1, s2, c1, c2, "ошибочно задан неверный тип объекта"]:
         try:
-            # store.set_item(item=item)
-            # store += item
+            # store.set_item(item=item)     # можно и так
+            # store += item                 # можно и так
+            # store = store + item          # можно и так
             store = item + store
         except Exception as err:
             print(f"{err}")
         else:
             print(f"Успешно добавлено: \n{store.get_item(serial=item.get_serial)}")
-
-    # Определяем размещение оборудования
-    # проверяем
-    print()
-    print("Запрос устройства по серийному номеру 001AFM27-40:")
-    print(store.get_item("001AFM27-40"))
-    print(f"-- Расположение:      {store.get_location(serial='001AFM27-40')}")
-    print(f"-- Новое размещение:  {store.set_location(serial='001AFM27-40', location=Const.LOCATION_RECEPTION)}")
-    print(f"-- Распол. проверка:  {store.get_location(serial='001AFM27-40')}")
-    print(f"Переменная p1 = {p1}")
-
-    print("Удаление переменных-ссылок на объекты: ")
-    print("проверим, остались ли объекты на складе после удаления переменны?")
+    print("- "*46)
+    print("Удаление переменные-ссылки на объекты: ")
+    print("но проверим, остались ли объекты на складе после удаления переменны?")
     del p1, p2, s1, s2, c1, c2
     try:
         print(p1)  # попытка обратиться к удалённой переменной
     except Exception as err:
         print(f"ПЕРЕМЕННАЯ p1 УДАЛЕНА: {err}")
+
+    # Изменение расположения
 
     print("- "*46)
     print("Изменяем размещение оборудования: раздаём по отделам...")
@@ -384,11 +389,17 @@ def main():
     store.set_location(serial='18-25RY-10M', location=Const.LOCATION_DEPARTMENT_SALE)
 
     print("- "*46)
-    print(f"Склад, список всего оборудования компании:")
+    print(f"Склад, список всего оборудования компании (проверяем новое размещение)")
     store()
     print(f"ВСЕГО: {len(store)}")
-    print(f"Cписок оборудования отдела {Const.LOCATION_DEPARTMENT_SALE}:")
+    print("- "*46)
+    print(f"ВЫБОРКА: список оборудования отдела {Const.LOCATION_DEPARTMENT_SALE}:")
     store(location=Const.LOCATION_DEPARTMENT_SALE)
+
+    print("- "*46)
+    print(f"Получение списка как итератора (без выборки)")
+    for i, item in enumerate(store, start=1):
+        print(f"{i:03d}--{item}")
 
 
 # Поехали
