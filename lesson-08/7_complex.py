@@ -170,7 +170,7 @@ def main():
     # СОЗДАНИЕ комплексных чисел
     print(f"\nСОЗДАНИЕ объектов -- комплексных чисел")
     z0 = ComplexNumber(im=-1)
-    print(f"z0 = ComplexNumber(im=-10)->  {z0}")
+    print(f"z0 = ComplexNumber(im=-1) ->  {z0}")
     z0.re = 1
     print(f"z0.re = 1                 ->  {z0} -- изменение атрибута напрямую")
     z1 = ComplexNumber(1, -1)
