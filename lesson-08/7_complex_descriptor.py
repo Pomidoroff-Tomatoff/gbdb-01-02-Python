@@ -1,5 +1,5 @@
 # GeekBrains > Python basics: Oleg Gladkiy (https://geekbrains.ru/users/3837199)
-homework_type = "Lesson-8. 7_complex_numbers v.025"
+homework_type = "Lesson-8. 7_complex_numbers v.026"
 '''
   7. Реализовать проект «Операции с комплексными числами». 
      А. Создайте класс «Комплексное число». 
@@ -178,7 +178,7 @@ class ComplexNumber(object):
     def __init__(self, re: float = 0, im: float = 0):
         # Внимание!
         # Приватный атрибут дескриптора можно изменить только используя __dict__
-        # с указанием класса, в котором был создан:
+        # с указанием класса, в котором он был создан:
         #   self.__dict__['_NumberDESCRIPTOR__real']
         # или (если принудительно имя класса не использовалось)
         #   self.__dict__['__real']
@@ -282,8 +282,8 @@ def main():
 
     # СОЗДАНИЕ комплексных чисел
     print(f"\nСОЗДАНИЕ объектов -- комплексных чисел")
-    z0 = ComplexNumber(re=-1)
-    print(f"z0 = ComplexNumber(im=-1) ->  {z0}   {z0.re=},  {type(z0.re)=}")
+    z0 = ComplexNumber(im=-1)
+    print(f"z0 = ComplexNumber(im=-1) ->  {z0} -- {z0.re=},  {z0.im=},  {type(z0.re)=}")
     z0.re = 1
     print(f"z0.re = 1                 ->  {z0} -- изменение атрибута напрямую")
     z1 = ComplexNumber(2, -1)
