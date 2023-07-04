@@ -1,5 +1,5 @@
 # GeekBrains > Python basics: Oleg Gladkiy (https://geekbrains.ru/users/3837199)
-homework_type = "Lesson-8. 7_complex_numbers v.023"
+homework_type = "Lesson-8. 7_complex_numbers v.024"
 '''
   7. Реализовать проект «Операции с комплексными числами». 
      А. Создайте класс «Комплексное число». 
@@ -133,10 +133,12 @@ class CheckComplex(object):
 class NumberDESCRIPTOR(object):
     '''Дескриптор для работы с реальной и мнимой частями комплексного числа'''
 
-    def __init__(self, key: str = "__variable"):
+    def __init__(self, key: str = None):
         # Запомним имя атрибута,
-        # в котором прикладной экземпляр будет хранить значение экземпляра дескриптора
-        self.__object_attribute_name_for_descriptor = key
+        # в котором прикладной экземпляр будет хранить значение дескриптора
+        if key is None: raise TypeError("Необходимо задать переменную для хранения значения дескриптора!!!")
+        self.__object_attribute_name_for_descriptor = "_" + self.__class__.__name__
+        self.__object_attribute_name_for_descriptor += key
 
     def __get__(self, instance, owner):
         '''Получение значения, сохранённого экземпляром дескриптора.
@@ -165,15 +167,15 @@ class NumberDESCRIPTOR(object):
 class ComplexNumber(object):
     '''Комплексное число'''
 
-    re = NumberDESCRIPTOR(key='__real')        # экземпляр класса дескриптора для реальной части числа
-    im = NumberDESCRIPTOR(key='__imaginary')     # экземпляр класса дескриптора для мнимой части
+    re = NumberDESCRIPTOR(key='__real')         # экземпляр класса дескриптора для реальной части числа
+    im = NumberDESCRIPTOR(key='__imaginary')    # экземпляр класса дескриптора для мнимой части
 
     def __init__(self, re: float = 0, im: float = 0):
         # Внимание!
         # Все атрибуты, которые создаёт экземпляр дескриптора
         # Приватный атрибут можно изменить только используя __dict__, иначе он не видится...
         # Пример:
-        # self.__dict__['__real'] = 33333
+        # self.__dict__['__real'] = 333
         self.re = re    # real, инициализация атрибута экземпляра дескриптора
         self.im = im    # imaginary, инициализация значения экземпляра дескриптора
 
