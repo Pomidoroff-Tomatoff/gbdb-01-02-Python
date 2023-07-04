@@ -1,5 +1,5 @@
 # GeekBrains > Python basics: Oleg Gladkiy (https://geekbrains.ru/users/3837199)
-homework_type = "Lesson-8. 7_complex_numbers v.026"
+homework_type = "Lesson-8. 7_complex_numbers v.027"
 '''
   7. Реализовать проект «Операции с комплексными числами». 
      А. Создайте класс «Комплексное число». 
@@ -133,35 +133,34 @@ class CheckComplex(object):
 class NumberDESCRIPTOR(object):
     '''Дескриптор для работы с реальной и мнимой частями комплексного числа'''
 
-    def __init__(self, key: str = None):
-        # Запомним имя атрибута,
-        # в котором прикладной экземпляр будет хранить значение дескриптора
-        if key is None: raise TypeError("Необходимо задать переменную для хранения значения дескриптора!!!")
+    def __init__(self, doc: str = ""):
+        # Запомним строку-описание свойства (атрибута-дескриптора)
+        self.__doc = doc
 
-        # Если имя параметра приватное, то добавим приставку из имени этого класса...
-        if key.startswith("__"):
-            self.__object_attribute_name_for_descriptor = "_" + self.__class__.__name__
-            self.__object_attribute_name_for_descriptor += key
-        else:
-            self.__object_attribute_name_for_descriptor = key
+    def __set_name__(self, owner, name):
+        # Для свойства создадим имя атрибута экземпляра-владельца для хранения его значения
+        self.__object_attribute_name_for_descriptor = "_" + self.__class__.__name__
+        if not name.startswith("__"):
+            self.__object_attribute_name_for_descriptor += "__"
+        self.__object_attribute_name_for_descriptor += name
 
     def __get__(self, instance, owner):
-        '''Получение значения, сохранённого экземпляром дескриптора.
-        Инициализация: первое значение экземпляр дескриптора получает в конструкторе прикладного экземпляра
-            :self        -- экземпляр этого дескриптора
-            :instance    -- экземпляр класса комплексного числа
-            :owner       -- класс комплексных чисел
+        '''Получение значения, сохранённого в экземпляре класса-владельца.
+        Инициализация: первое значение экземпляр дескриптора получает в конструкторе экземпляра-владельца
+        :self        -- экземпляр этого дескриптора
+        :instance    -- экземпляр класса комплексного числа
+        :owner       -- класс комплексных чисел
         '''
         return instance.__dict__[self.__object_attribute_name_for_descriptor]
 
     @CheckDigital()
     def __set__(self, instance, value):
-        '''Изменение значения атрибута комплексного числа в экз. дескриптора,
+        '''Изменение значения атрибута-дескриптора,
         в том числе инициализация при первом обращении к экземпляру дескриптора
-        в конструкторе экземпляра прикладного класса
-            self        -- экземпляр этого дескриптора
-            instance    -- экземпляр класса комплексного числа
-            value       -- новое значение
+        в конструкторе экземпляра-владельца
+        :self        -- экземпляр этого дескриптора
+        :instance    -- экземпляр класса комплексного числа
+        :value       -- новое значение
         '''
         instance.__dict__[self.__object_attribute_name_for_descriptor] = value
 
@@ -172,22 +171,19 @@ class NumberDESCRIPTOR(object):
 class ComplexNumber(object):
     '''Комплексное число'''
 
-    re = NumberDESCRIPTOR(key='__real')         # экземпляр класса дескриптора для реальной части числа
-    im = NumberDESCRIPTOR(key='__imaginary')    # экземпляр класса дескриптора для мнимой части
+    re = NumberDESCRIPTOR('реальная')  # Экземпляр дескриптора re, одинаков для всех re у всех экз. NumberDESCRIPTOR
+    im = NumberDESCRIPTOR('мнимая')    # Другой экз. дескр. -- im, одинаков для всех im у всех экз. NumberDESCRIPTOR
 
     def __init__(self, re: float = 0, im: float = 0):
         # Внимание!
         # Приватный атрибут дескриптора можно изменить только используя __dict__
-        # с указанием класса, в котором он был создан:
-        #   self.__dict__['_NumberDESCRIPTOR__real']
-        # или (если принудительно имя класса не использовалось)
-        #   self.__dict__['__real']
+        # с указанием класса, в котором он был создан: self.__dict__['_NumberDESCRIPTOR__real']
+        # или (если принудительно имя класса не использовалось): self.__dict__['__real']
         # иначе он не видится...
 
         # Инициализируем дескрипторы для экземпляра
         self.re = re    # real, инициализация атрибута экземпляра дескриптора
         self.im = im    # imaginary, инициализация значения экземпляра дескриптора
-        # print(self.__dict__)
 
     @CheckComplex()
     def __addition_begin(self, value):
