@@ -1,5 +1,5 @@
 # GeekBrains > Python basics: Oleg Gladkiy (https://geekbrains.ru/users/3837199)
-homework_type = "Lesson-8. 7_complex_numbers v.027"
+homework_type = "Lesson-8. 7_complex_numbers v.028"
 '''
   7. Реализовать проект «Операции с комплексными числами». 
      А. Создайте класс «Комплексное число». 
@@ -131,48 +131,59 @@ class CheckComplex(object):
 
 
 class NumberDESCRIPTOR(object):
-    '''Дескриптор для работы с реальной и мнимой частями комплексного числа'''
+    '''Дескриптор для работы с реальной и мнимой частями комплексного числа:
+    один класс-дескриптор используется для создания нескольких свойств одного комплексного числа.
+    Для того, чтобы эти свойства могли хранить свои значения, необходимо далее в экземплярах комплексных чисел
+    создать атрибуты с именами, строго соответствующие своим свойствам.
+    Например:
+        re = NumberDESCRIPTOR()
+            свойство re -> атрибут с именем _NumberDESCRIPTOR__re
+    '''
 
     def __init__(self, doc: str = ""):
-        # Запомним строку-описание свойства (атрибута-дескриптора)
+        # Запомним строку-описание свойства (или атрибута-дескриптора)
         self.__doc = doc
 
-    def __set_name__(self, owner, name):
-        # Для свойства создадим имя атрибута экземпляра-владельца для хранения его значения
-        self.__object_attribute_name_for_descriptor = "_" + self.__class__.__name__
-        if not name.startswith("__"):
-            self.__object_attribute_name_for_descriptor += "__"
-        self.__object_attribute_name_for_descriptor += name
+    def __set_name__(self, owner, name) -> None:
+        '''Получение имени свойства, к которому привязан экз. дескриптора.
+        Позволяет сформировать имя (атрибута), которое будет использовано для хранения значения своего свойства.
+        Такое уникальное имя можно собрать, дополнив его именем его же свойства:
+        Это собранное ИМЯ будем хранить здесь же -- в экземпляре дескриптора (исп. self).
+            :param owner:  класс-владелец дескриптора;
+            :param name:   имя свойства (атрибута), к которому привязан экземпляр класса-дескриптора.
+        '''
+        self.__attribute_name_for_descriptor = \
+            "_" + self.__class__.__name__ + ("" if name.startswith("__") else "__") + name
 
     def __get__(self, instance, owner):
         '''Получение значения, сохранённого в экземпляре класса-владельца.
         Инициализация: первое значение экземпляр дескриптора получает в конструкторе экземпляра-владельца
-        :self        -- экземпляр этого дескриптора
-        :instance    -- экземпляр класса комплексного числа
-        :owner       -- класс комплексных чисел
+            :param  self:      экземпляр этого дескриптора
+            :param  instance:  экземпляр класса комплексного числа
+            :param  owner:     класс комплексных чисел
         '''
-        return instance.__dict__[self.__object_attribute_name_for_descriptor]
+        return instance.__dict__[self.__attribute_name_for_descriptor]
 
     @CheckDigital()
     def __set__(self, instance, value):
         '''Изменение значения атрибута-дескриптора,
         в том числе инициализация при первом обращении к экземпляру дескриптора
         в конструкторе экземпляра-владельца
-        :self        -- экземпляр этого дескриптора
-        :instance    -- экземпляр класса комплексного числа
-        :value       -- новое значение
+            :param self:     экземпляр этого дескриптора
+            :param instance: экземпляр класса комплексного числа
+            :param value:    новое значение
         '''
-        instance.__dict__[self.__object_attribute_name_for_descriptor] = value
+        instance.__dict__[self.__attribute_name_for_descriptor] = value
 
     def __delete__(self, instance):
-        raise AppAttribDeleteError(f"Атрибут \"{self.__object_attribute_name_for_descriptor}\". Дескриптор-класс \"{self.__class__.__name__}\".") from None
+        raise AppAttribDeleteError(f"Атрибут \"{self.__attribute_name_for_descriptor}\". Дескриптор-класс \"{self.__class__.__name__}\".") from None
 
 
 class ComplexNumber(object):
     '''Комплексное число'''
 
-    re = NumberDESCRIPTOR('реальная')  # Экземпляр дескриптора re, одинаков для всех re у всех экз. NumberDESCRIPTOR
-    im = NumberDESCRIPTOR('мнимая')    # Другой экз. дескр. -- im, одинаков для всех im у всех экз. NumberDESCRIPTOR
+    re = NumberDESCRIPTOR('реальная')   # Экземпляр класса-дескриптора для свойства re, движок одинаков для всех свойств re во всех экз. ComplexNumber()
+    im = NumberDESCRIPTOR('мнимая')     # Другой экз. дескр. NumberDESCRIPTOR -- для свойства im...
 
     def __init__(self, re: float = 0, im: float = 0):
         # Внимание!
