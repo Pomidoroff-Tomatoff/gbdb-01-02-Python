@@ -1,5 +1,5 @@
 # GeekBrains > Python basics: Oleg Gladkiy (https://geekbrains.ru/users/3837199)
-homework_type = "Lesson-8. 1_date"
+homework_type = "Lesson-8. 1_date v.030"
 '''
 # 1. Реализовать класс «Дата»
      А. функция-конструктор которого должна принимать дату в виде 
@@ -19,8 +19,11 @@ homework_type = "Lesson-8. 1_date"
         только один экземпляр, хоть и под разными именами.
      Б. Создать класс сингл-тон для хранения и выдачи значения даты.
      В. Создать методы для разбора даты и обработки ошибок.
+  ДОПОЛНЕНИЕ (v.030):
+     -- Добавлена возможность работы с несколькими разделителями: двоеточие, точка, запятая...
 '''
 print(homework_type)
+import re
 
 
 class Singleton:
@@ -34,7 +37,7 @@ class Singleton:
         '''
         if not hasattr(cls, 'instance'):            # ? -- атрибут класса для ссылки на экземпляр
             cls.instance = super().__new__(cls)     # Экземпляр! ...аргументы экз. не передаём...
-        return cls.instance                         # Возвращаем ссылку на экз. всегда
+        return cls.instance                         # Возвращаем ссылку на 1-ый экз. Всегда!
 
 class Date(Singleton):
     ''' Принимаем дату в виде строки формата «день-месяц-год»
@@ -53,11 +56,15 @@ class Date(Singleton):
 
     @classmethod
     def __make_digital(cls, sdate):
-        ''' Извлечение числовых данные из строки формата DD-MM-YYYY '''
+        '''Извлечение числовых данные из строки формата DD-MM-YYYY с несколькими видами разделителя (не только дефис)
+            :param sdate: дата в виде строки с разделителями чисел
+        '''
         cls.__error_messages = []  # self.__class__.__error_messages = []  # это в некласных методах
         ddate = []
         status = True
-        elements = [i for i in sdate.strip().split("-") if i and not i.isspace()]  # ...без пустышек
+        delimiters = r"[-:;',. ]+"  # несколько видов разделителей
+        elements = [i for i in re.split(delimiters, sdate.strip()) if i and not i.isspace()]  # ...без пустышек
+        # elements = [i for i in sdate.strip().split("-") if i and not i.isspace()]  # стандартный сплит ...без пустышек
         for i in elements:
             try:
                 value = int(i)
@@ -156,7 +163,17 @@ def main():
             ERROR_MSG: None,
         }, {
             DATE_STRING: "10--01-  -2020",
-            TEST_PLAN: "ОШИБКИ ФОРМАТА: лишние дефис и пробел (__make_digital)",
+            TEST_PLAN: "ЗАМЕЧАНИЯ ФОРМАТА: лишние дефис и пробел (__make_digital)",
+            INSTANCE: None,
+            ERROR_MSG: None,
+        }, {
+            DATE_STRING: "15:-- 02 2020",
+            TEST_PLAN: "ЗАМЕЧАНИЯ ФОРМАТА: различные виды разделителей -- двоеточие \":\", точка, запятая, дефис с пробелами, пробел (__make_digital)",
+            INSTANCE: None,
+            ERROR_MSG: None,
+        }, {
+            DATE_STRING: "  16,;03.2020  ",
+            TEST_PLAN: "ЗАМЕЧАНИЯ ФОРМАТА: различные виды разделителей -- точка, запятая, дефис с пробелами, пробел (__make_digital)",
             INSTANCE: None,
             ERROR_MSG: None,
         }, {
