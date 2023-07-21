@@ -1,5 +1,5 @@
-# GeekBrains > Python basics: Oleg Gladkiy (https://geekbrains.ru/users/3837199)
-homework_type = "Lesson-8. 7_complex_numbers v.029"
+# GeekBrains > Python basics: Oleg Gladkiy (https://gb.ru/users/358e4f6c-8b97-42f0-baf6-254e78ff766e)
+homework_type = "Lesson-8. 7_complex_numbers v.030"
 '''
   7. Реализовать проект «Операции с комплексными числами». 
      А. Создайте класс «Комплексное число». 
